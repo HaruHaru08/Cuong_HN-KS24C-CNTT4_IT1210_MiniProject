@@ -1,0 +1,132 @@
+﻿<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/main}">
+<head>
+    <title>Staff Dashboard</title>
+</head>
+<body>
+    <div layout:fragment="content">
+        <div class="row">
+            <div class="col-12">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h1 class="text-white">
+                        <i class="fas fa-user-tie text-warning me-2"></i>
+                        Staff Dashboard
+                    </h1>
+                    <small class="text-white">Quản lý hoạt động rạp phim</small>
+                </div>
+            </div>
+        </div>
+
+        <!-- Today's Statistics -->
+        <div class="row mb-4">
+            <div class="col-md-4 mb-3">
+                <div class="card bg-dark border-warning">
+                    <div class="card-body text-center">
+                        <i class="fas fa-ticket-alt fa-2x text-warning mb-2"></i>
+                        <h4 class="text-white">45</h4>
+                        <p class="text-white mb-0">Vé bán hôm nay</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 mb-3">
+                <div class="card bg-dark border-warning">
+                    <div class="card-body text-center">
+                        <i class="fas fa-clock fa-2x text-warning mb-2"></i>
+                        <h4 class="text-white">8</h4>
+                        <p class="text-white mb-0">Suất chiếu hôm nay</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 mb-3">
+                <div class="card bg-dark border-warning">
+                    <div class="card-body text-center">
+                        <i class="fas fa-dollar-sign fa-2x text-warning mb-2"></i>
+                        <h4 class="text-white">2.5M</h4>
+                        <p class="text-white mb-0">Doanh thu hôm nay</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Staff Actions -->
+        <div class="row">
+            <div class="col-12">
+                <div class="card bg-dark border-warning">
+                    <div class="card-header">
+                        <h5 class="text-white mb-0">
+                            <i class="fas fa-tasks text-warning me-2"></i>
+                            Chức năng nhân viên
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <a href="#" class="btn btn-outline-warning w-100 h-100 d-flex flex-column align-items-center p-4">
+                                    <i class="fas fa-qrcode fa-2x mb-2"></i>
+                                    <span>Quét vé vào cửa</span>
+                                </a>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <a href="#" class="btn btn-outline-warning w-100 h-100 d-flex flex-column align-items-center p-4">
+                                    <i class="fas fa-calendar-check fa-2x mb-2"></i>
+                                    <span>Quản lý đặt chỗ</span>
+                                </a>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <a href="#" class="btn btn-outline-warning w-100 h-100 d-flex flex-column align-items-center p-4">
+                                    <i class="fas fa-concierge-bell fa-2x mb-2"></i>
+                                    <span>Quản lý dịch vụ</span>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Current Showtimes -->
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="card bg-dark border-warning">
+                    <div class="card-header">
+                        <h5 class="text-white mb-0">
+                            <i class="fas fa-play-circle text-warning me-2"></i>
+                            Suất chiếu đang diễn ra
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-dark table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Phim</th>
+                                        <th>Phòng</th>
+                                        <th>Thời gian</th>
+                                        <th>Trạng thái</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>Avengers: Endgame</td>
+                                        <td>Phòng 1</td>
+                                        <td>14:00 - 16:30</td>
+                                        <td><span class="badge bg-success">Đang chiếu</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Spider-Man: No Way Home</td>
+                                        <td>Phòng 2</td>
+                                        <td>16:45 - 19:15</td>
+                                        <td><span class="badge bg-warning">Sắp chiếu</span></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

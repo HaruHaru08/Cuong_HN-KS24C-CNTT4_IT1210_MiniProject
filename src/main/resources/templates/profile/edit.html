@@ -1,0 +1,98 @@
+﻿<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout/header :: header}">
+    <title>Chỉnh sửa hồ sơ</title>
+</head>
+<body class="bg-zinc-950 min-h-screen antialiased">
+    <aside th:replace="~{layout/sidebar :: sidebar}"></aside>
+
+    <div class="ml-[260px] min-h-screen flex flex-col">
+        <nav th:replace="~{layout/navbar_admin :: navbar}"></nav>
+
+        <main class="flex-1 p-6 lg:p-8">
+            <!-- Header section -->
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
+                <div>
+                    <h1 class="text-2xl font-bold text-white font-poppins">Chỉnh sửa hồ sơ</h1>
+                    <p class="text-white text-sm mt-1">Cập nhật thông tin cá nhân của bạn</p>
+                </div>
+                <a th:href="@{/profile}"
+                   class="inline-flex items-center gap-2 px-4 py-2.5 bg-zinc-800 hover:bg-zinc-700 text-white text-sm font-medium rounded-xl transition-colors">
+                    <i class="fas fa-arrow-left"></i>
+                    Quay lại
+                </a>
+            </div>
+
+            <!-- Form card (max-w-2xl để không quá rộng cũng không quá hẹp) -->
+            <div class="max-w-2xl mx-auto">
+                <div class="bg-zinc-900/80 backdrop-blur-xl border border-zinc-800 rounded-2xl p-8">
+                    <form th:action="@{/profile/save}" th:object="${profileDTO}" method="post" class="space-y-6">
+                        <input type="hidden" th:field="*{userId}" />
+
+                        <!-- Avatar upload area -->
+                        <div class="flex flex-col items-center pb-6 border-b border-zinc-800">
+                            <div class="relative mb-4">
+                                <div class="w-24 h-24 rounded-full bg-gradient-to-br from-red-500 to-rose-700 flex items-center justify-center ring-4 ring-red-500/30 shadow-lg shadow-red-500/20">
+                                    <span class="text-3xl font-bold text-white"
+                                          th:text="${#strings.substring(profileDTO.fullName != null ? profileDTO.fullName : 'A', 0, 1)}">A</span>
+                                </div>
+                                <label class="absolute -bottom-1 -right-1 w-8 h-8 bg-red-600 hover:bg-red-500 rounded-full flex items-center justify-center cursor-pointer shadow-lg transition-colors">
+                                    <i class="fas fa-camera text-white text-xs"></i>
+                                    <input type="file" name="avatar" accept="image/*" class="hidden" />
+                                </label>
+                            </div>
+                            <p class="text-xs text-white">Nhấn vào icon camera để tải ảnh đại diện mới</p>
+                        </div>
+
+                        <!-- Họ và tên -->
+                        <div>
+                            <label class="block text-sm font-medium text-white mb-2">
+                                <i class="fas fa-user text-red-500 mr-1.5"></i>Họ và tên
+                            </label>
+                            <input type="text" th:field="*{fullName}" placeholder="Nhập họ và tên..."
+                                   class="w-full px-4 py-3 bg-zinc-800/50 border border-zinc-700 rounded-xl text-white text-sm placeholder-zinc-500 focus:outline-none focus:border-red-600 focus:ring-1 focus:ring-red-600/30 transition-all duration-200" />
+                            <p class="text-red-400 text-xs mt-1.5" th:if="${#fields.hasErrors('fullName')}" th:errors="*{fullName}"></p>
+                        </div>
+
+                        <!-- Số điện thoại -->
+                        <div>
+                            <label class="block text-sm font-medium text-white mb-2">
+                                <i class="fas fa-phone-alt text-red-500 mr-1.5"></i>Số điện thoại
+                            </label>
+                            <input type="tel" th:field="*{phone}" placeholder="Nhập số điện thoại (10 số)..."
+                                   class="w-full px-4 py-3 bg-zinc-800/50 border border-zinc-700 rounded-xl text-white text-sm placeholder-zinc-500 focus:outline-none focus:border-red-600 focus:ring-1 focus:ring-red-600/30 transition-all duration-200" />
+                            <p class="text-red-400 text-xs mt-1.5" th:if="${#fields.hasErrors('phone')}" th:errors="*{phone}"></p>
+                        </div>
+
+                        <!-- Địa chỉ -->
+                        <div>
+                            <label class="block text-sm font-medium text-white mb-2">
+                                <i class="fas fa-map-marker-alt text-red-500 mr-1.5"></i>Địa chỉ
+                            </label>
+                            <textarea th:field="*{address}" rows="3" placeholder="Nhập địa chỉ của bạn..."
+                                      class="w-full px-4 py-3 bg-zinc-800/50 border border-zinc-700 rounded-xl text-white text-sm placeholder-zinc-500 focus:outline-none focus:border-red-600 focus:ring-1 focus:ring-red-600/30 transition-all duration-200 resize-none"></textarea>
+                            <p class="text-red-400 text-xs mt-1.5" th:if="${#fields.hasErrors('address')}" th:errors="*{address}"></p>
+                        </div>
+
+                        <!-- Buttons -->
+                        <div class="flex items-center justify-center gap-4 pt-6 border-t border-zinc-800">
+                            <button type="submit"
+                                    class="inline-flex items-center gap-2 px-8 py-3 bg-gradient-to-r from-red-600 to-red-800 hover:from-red-500 hover:to-red-700 text-white text-sm font-semibold rounded-xl shadow-lg shadow-red-600/20 hover:shadow-red-500/30 transition-all duration-300">
+                                <i class="fas fa-save"></i>
+                                Lưu thay đổi
+                            </button>
+                            <a th:href="@{/profile}"
+                               class="inline-flex items-center gap-2 px-6 py-3 bg-zinc-800 hover:bg-zinc-700 text-white text-sm font-medium rounded-xl transition-colors">
+                                <i class="fas fa-times"></i>
+                                Hủy bỏ
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </main>
+
+        <footer th:replace="~{layout/footer :: footer}"></footer>
+    </div>
+</body>
+</html>

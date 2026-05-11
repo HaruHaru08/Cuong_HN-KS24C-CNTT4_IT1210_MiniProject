@@ -1,0 +1,719 @@
+﻿<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="vi">
+<head th:replace="~{layout/header :: header}"></head>
+<body>
+    <!-- Sidebar Navigation -->
+    <div th:replace="~{layout/sidebar :: sidebar}"></div>
+
+    <!-- Navbar Admin -->
+    <div th:replace="~{layout/navbar_admin :: navbar}"></div>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Welcome Section -->
+        <section class="welcome-section">
+            <div class="welcome-card">
+                <div class="welcome-content">
+                    <h2>Xin chào, <span th:if="${session.loggedInUser}" th:text="${session.loggedInUser.userName}">Admin</span><span th:unless="${session.loggedInUser}">Admin</span>! 👋</h2>
+                    <p>Chào mừng trở lại dashboard quản lý rạp chiếu phim. Dưới đây là tóm tắt hoạt động hôm nay.</p>
+                </div>
+                <div class="welcome-icon">
+                    <i class="fas fa-clapperboard"></i>
+                </div>
+            </div>
+        </section>
+
+        <!-- Statistics Cards Section -->
+        <section class="stats-section">
+            <div class="section-title">
+                <h3>Thống kê nhanh</h3>
+                <p class="subtitle">Tổng quan hoạt động hôm nay</p>
+            </div>
+
+            <div class="stats-grid">
+                <!-- Card 1: Total Revenue -->
+                <div class="stat-card revenue-card">
+                    <div class="card-header">
+                        <i class="fas fa-dollar-sign card-icon"></i>
+                        <span class="card-label">Doanh thu</span>
+                    </div>
+                    <div class="card-value">
+                        <h4>25.500.000₫</h4>
+                        <p class="stat-change"><i class="fas fa-arrow-up"></i> 12.5% so với tuần trước</p>
+                    </div>
+                </div>
+
+                <!-- Card 2: Total Tickets Sold -->
+                <div class="stat-card tickets-card">
+                    <div class="card-header">
+                        <i class="fas fa-ticket-alt card-icon"></i>
+                        <span class="card-label">Vé đã bán</span>
+                    </div>
+                    <div class="card-value">
+                        <h4>1.248</h4>
+                        <p class="stat-change"><i class="fas fa-arrow-up"></i> 8.3% so với tuần trước</p>
+                    </div>
+                </div>
+
+                <!-- Card 3: Active Movies -->
+                <div class="stat-card movies-card">
+                    <div class="card-header">
+                        <i class="fas fa-video card-icon"></i>
+                        <span class="card-label">Phim đang chiếu</span>
+                    </div>
+                    <div class="card-value">
+                        <h4>15</h4>
+                        <p class="stat-change"><i class="fas fa-arrow-down"></i> 2 phim kết thúc tuần này</p>
+                    </div>
+                </div>
+
+                <!-- Card 4: Total Users -->
+                <div class="stat-card users-card">
+                    <div class="card-header">
+                        <i class="fas fa-users card-icon"></i>
+                        <span class="card-label">Tổng người dùng</span>
+                    </div>
+                    <div class="card-value">
+                        <h4>3.542</h4>
+                        <p class="stat-change"><i class="fas fa-arrow-up"></i> 5.2% người dùng mới</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Charts Section -->
+        <section class="charts-section">
+            <div class="row g-4">
+                <!-- Revenue Chart -->
+                <div class="col-lg-8">
+                    <div class="chart-card">
+                        <div class="chart-header">
+                            <h4>Biểu đồ doanh thu</h4>
+                            <div class="chart-filter">
+                                <button class="filter-btn active">7 ngày</button>
+                                <button class="filter-btn">1 tháng</button>
+                                <button class="filter-btn">3 tháng</button>
+                            </div>
+                        </div>
+                        <div class="chart-body">
+                            <canvas id="revenueChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quick Stats -->
+                <div class="col-lg-4">
+                    <div class="quick-stats-card">
+                        <h4>Thống kê hôm nay</h4>
+                        <div class="quick-stat-item">
+                            <div class="stat-label">
+                                <i class="fas fa-shopping-cart"></i>
+                                <span>Đơn hàng mới</span>
+                            </div>
+                            <div class="stat-value">24</div>
+                        </div>
+                        <hr>
+                        <div class="quick-stat-item">
+                            <div class="stat-label">
+                                <i class="fas fa-user-plus"></i>
+                                <span>Người dùng mới</span>
+                            </div>
+                            <div class="stat-value">12</div>
+                        </div>
+                        <hr>
+                        <div class="quick-stat-item">
+                            <div class="stat-label">
+                                <i class="fas fa-film"></i>
+                                <span>Suất chiếu hôm nay</span>
+                            </div>
+                            <div class="stat-value">45</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Recent Transactions Table -->
+        <section class="transactions-section">
+            <div class="section-title">
+                <h3>Giao dịch gần đây</h3>
+                <a href="#" class="view-all">Xem tất cả <i class="fas fa-arrow-right"></i></a>
+            </div>
+
+            <div class="table-card">
+                <table class="transactions-table">
+                    <thead>
+                        <tr>
+                            <th>Mã giao dịch</th>
+                            <th>Phim</th>
+                            <th>Khách hàng</th>
+                            <th>Giá vé</th>
+                            <th>Số lượng</th>
+                            <th>Tổng cộng</th>
+                            <th>Ngày giờ</th>
+                            <th>Trạng thái</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Row 1 -->
+                        <tr>
+                            <td><span class="transaction-id">TXN-001</span></td>
+                            <td>Avatar: The Way of Water</td>
+                            <td>Nguyễn Văn A</td>
+                            <td>150.000₫</td>
+                            <td>2</td>
+                            <td><strong>300.000₫</strong></td>
+                            <td>2026-05-07 14:30</td>
+                            <td><span class="status-badge success">Hoàn tất</span></td>
+                        </tr>
+                        <!-- Row 2 -->
+                        <tr>
+                            <td><span class="transaction-id">TXN-002</span></td>
+                            <td>Oppenheimer</td>
+                            <td>Trần Thị B</td>
+                            <td>180.000₫</td>
+                            <td>3</td>
+                            <td><strong>540.000₫</strong></td>
+                            <td>2026-05-07 15:45</td>
+                            <td><span class="status-badge success">Hoàn tất</span></td>
+                        </tr>
+                        <!-- Row 3 -->
+                        <tr>
+                            <td><span class="transaction-id">TXN-003</span></td>
+                            <td>Killers of the Flower Moon</td>
+                            <td>Phạm Văn C</td>
+                            <td>160.000₫</td>
+                            <td>4</td>
+                            <td><strong>640.000₫</strong></td>
+                            <td>2026-05-07 16:20</td>
+                            <td><span class="status-badge success">Hoàn tất</span></td>
+                        </tr>
+                        <!-- Row 4 -->
+                        <tr>
+                            <td><span class="transaction-id">TXN-004</span></td>
+                            <td>Dune: Part Two</td>
+                            <td>Hoàng Xuân D</td>
+                            <td>150.000₫</td>
+                            <td>2</td>
+                            <td><strong>300.000₫</strong></td>
+                            <td>2026-05-07 17:10</td>
+                            <td><span class="status-badge pending">Đang xử lý</span></td>
+                        </tr>
+                        <!-- Row 5 -->
+                        <tr>
+                            <td><span class="transaction-id">TXN-005</span></td>
+                            <td>Inside Out 2</td>
+                            <td>Lê Minh E</td>
+                            <td>140.000₫</td>
+                            <td>5</td>
+                            <td><strong>700.000₫</strong></td>
+                            <td>2026-05-07 18:00</td>
+                            <td><span class="status-badge success">Hoàn tất</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <div th:replace="~{layout/footer :: footer}"></div>
+
+    <!-- Bootstrap 5 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+
+    <!-- Custom JS & Styles -->
+    <script>
+        // ============== CHART.JS - BIỂU ĐỒ DOANH THU ==============
+        const ctx = document.getElementById('revenueChart').getContext('2d');
+        const revenueChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: ['Thứ Hai', 'Thứ Ba', 'Thứ Tư', 'Thứ Năm', 'Thứ Sáu', 'Thứ Bảy', 'Chủ Nhật'],
+                datasets: [
+                    {
+                        label: 'Doanh thu (triệu đ)',
+                        data: [3.2, 4.5, 3.8, 5.1, 6.2, 8.5, 5.3],
+                        borderColor: '#E50914',
+                        backgroundColor: 'rgba(229, 9, 20, 0.1)',
+                        tension: 0.4,
+                        fill: true,
+                        pointBackgroundColor: '#E50914',
+                        pointBorderColor: '#fff',
+                        pointBorderWidth: 2,
+                        pointRadius: 6,
+                        pointHoverRadius: 8,
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                plugins: {
+                    legend: {
+                        display: true,
+                        labels: {
+                            color: '#ffffff',
+                            font: {
+                                family: "'Poppins', sans-serif",
+                                size: 13
+                            },
+                            padding: 20
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: {
+                            color: 'rgba(255, 255, 255, 0.1)'
+                        },
+                        ticks: {
+                            color: '#ffffff',
+                            font: {
+                                family: "'Poppins', sans-serif"
+                            }
+                        }
+                    },
+                    x: {
+                        grid: {
+                            display: false
+                        },
+                        ticks: {
+                            color: '#ffffff',
+                            font: {
+                                family: "'Poppins', sans-serif"
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    </script>
+
+    <style>
+        /* ============== MAIN CONTENT STYLING ============== */
+        .main-content {
+            margin-left: 260px;
+            margin-top: 70px;
+            padding: 30px;
+            min-height: calc(100vh - 70px);
+            background-color: var(--deep-charcoal);
+        }
+
+        /* Welcome Section */
+        .welcome-section {
+            margin-bottom: 40px;
+        }
+
+        .welcome-card {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: linear-gradient(135deg, rgba(229, 9, 20, 0.15), rgba(229, 9, 20, 0.05));
+            border: 1px solid rgba(229, 9, 20, 0.3);
+            border-radius: 12px;
+            padding: 30px;
+            min-height: 150px;
+        }
+
+        .welcome-content h2 {
+            margin: 0 0 10px 0;
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--white-text);
+        }
+
+        .welcome-content span {
+            color: var(--cinema-red);
+        }
+
+        .welcome-content p {
+            margin: 0;
+            color: var(--light-text);
+            font-size: 14px;
+            max-width: 500px;
+        }
+
+        .welcome-icon {
+            font-size: 80px;
+            color: var(--cinema-red);
+            opacity: 0.3;
+        }
+
+        /* Statistics Cards Section */
+        .stats-section {
+            margin-bottom: 40px;
+        }
+
+        .section-title {
+            margin-bottom: 20px;
+        }
+
+        .section-title h3 {
+            margin: 0 0 5px 0;
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--white-text);
+        }
+
+        .section-title .subtitle {
+            margin: 0;
+            font-size: 13px;
+            color: var(--light-text);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+        }
+
+        /* Stat Cards Styling */
+        .stat-card {
+            background-color: var(--darker-gray);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 25px;
+            transition: all 0.3s ease;
+            overflow: hidden;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--cinema-red), transparent);
+        }
+
+        .stat-card {
+            position: relative;
+        }
+
+        .stat-card:hover {
+            border-color: var(--cinema-red);
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px var(--shadow-color);
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .card-icon {
+            font-size: 24px;
+            color: var(--cinema-red);
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: rgba(229, 9, 20, 0.1);
+            border-radius: 8px;
+        }
+
+        .card-label {
+            font-size: 13px;
+            color: var(--light-text);
+            text-transform: uppercase;
+            font-weight: 500;
+            letter-spacing: 0.5px;
+        }
+
+        .card-value h4 {
+            margin: 0 0 8px 0;
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--white-text);
+        }
+
+        .stat-change {
+            margin: 0;
+            font-size: 12px;
+            color: #4caf50;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .stat-change i {
+            font-size: 10px;
+        }
+
+        /* Charts Section */
+        .charts-section {
+            margin-bottom: 40px;
+        }
+
+        .chart-card,
+        .quick-stats-card {
+            background-color: var(--darker-gray);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 25px;
+        }
+
+        .chart-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .chart-header h4,
+        .quick-stats-card h4 {
+            margin: 0;
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--white-text);
+        }
+
+        .chart-filter {
+            display: flex;
+            gap: 10px;
+        }
+
+        .filter-btn {
+            padding: 8px 15px;
+            background-color: var(--deep-charcoal);
+            border: 1px solid var(--border-color);
+            color: var(--light-text);
+            border-radius: 6px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .filter-btn:hover,
+        .filter-btn.active {
+            background-color: var(--cinema-red);
+            border-color: var(--cinema-red);
+            color: white;
+        }
+
+        .chart-body {
+            position: relative;
+            height: 300px;
+        }
+
+        /* Quick Stats Card */
+        .quick-stats-card {
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .quick-stat-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 15px 0;
+            flex: 1;
+        }
+
+        .quick-stat-item hr {
+            border-color: var(--border-color);
+            margin: 0;
+        }
+
+        .stat-label {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: var(--light-text);
+            font-size: 13px;
+        }
+
+        .stat-label i {
+            color: var(--cinema-red);
+            font-size: 16px;
+        }
+
+        .stat-value {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--cinema-red);
+        }
+
+        /* Transactions Section */
+        .transactions-section {
+            margin-bottom: 40px;
+        }
+
+        .section-title {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+
+        .view-all {
+            color: var(--cinema-red);
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .view-all:hover {
+            gap: 12px;
+        }
+
+        .table-card {
+            background-color: var(--darker-gray);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .transactions-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 0;
+        }
+
+        .transactions-table thead {
+            background-color: rgba(229, 9, 20, 0.05);
+        }
+
+        .transactions-table th {
+            padding: 15px;
+            text-align: left;
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--cinema-red);
+            text-transform: uppercase;
+            border-bottom: 1px solid var(--border-color);
+            letter-spacing: 0.5px;
+        }
+
+        .transactions-table td {
+            padding: 15px;
+            border-bottom: 1px solid var(--border-color);
+            color: var(--light-text);
+            font-size: 13px;
+        }
+
+        .transactions-table tbody tr:hover {
+            background-color: rgba(229, 9, 20, 0.05);
+        }
+
+        .transactions-table tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        .transaction-id {
+            color: var(--cinema-red);
+            font-weight: 600;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .status-badge.success {
+            background-color: rgba(76, 175, 80, 0.2);
+            color: #4caf50;
+        }
+
+        .status-badge.pending {
+            background-color: rgba(255, 193, 7, 0.2);
+            color: #ffc107;
+        }
+
+        .status-badge.failed {
+            background-color: rgba(244, 67, 54, 0.2);
+            color: #f44336;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1200px) {
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                margin-left: 70px;
+                margin-top: 60px;
+                padding: 15px;
+            }
+
+            .welcome-card {
+                flex-direction: column;
+                text-align: center;
+                gap: 20px;
+                min-height: auto;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .chart-header {
+                flex-direction: column;
+            }
+
+            .section-title {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+
+            .transactions-table {
+                font-size: 12px;
+            }
+
+            .transactions-table th,
+            .transactions-table td {
+                padding: 10px;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .main-content {
+                margin-left: 0;
+                margin-top: 60px;
+                padding: 12px;
+            }
+
+            .welcome-card {
+                padding: 20px;
+            }
+
+            .welcome-content h2 {
+                font-size: 20px;
+            }
+
+            .welcome-icon {
+                font-size: 50px;
+            }
+
+            .transactions-table {
+                display: block;
+                overflow-x: auto;
+            }
+        }
+    </style>
+</body>
+</html>

@@ -1,0 +1,1184 @@
+﻿<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<!--
+===============================================================================
+  SHOWTIME MANAGEMENT - SCHEDULE BOARD
+  ===============================================================================
+  CONTROLLER DATA EXPECTED:
+    - showtimesByRoom  : Map<Room, List<Showtime>> — suất chiếu nhóm theo phòng
+    - rooms            : List<Room>                — tất cả phòng
+    - movies           : List<Movie>               — tất cả phim
+    - selectedDate     : LocalDate                 — ngày đang xem
+    - selectedRoomId   : Integer (nullable)        — phòng đã lọc
+    - currentTime      : LocalDateTime             — dùng để xác định trạng thái suất chiếu
+    - todayShowtimeCount : long                    — tổng suất chiếu hôm nay
+    - activeRoomsCount : long                      — phòng có suất chiếu
+    - totalSeats       : int                       — tổng số ghế toàn rạp
+    - bookedSeatsCount : int (MOCK)                — tổng vé đã bán trong ngày
+    - showtimeForm     : ShowtimeDTO               — DTO cho form thêm mới
+
+  MOCK / TODO:
+    - `bookedSeatsCount` hiện tại là 0. Cần query từ bảng tickets.
+    - Tooltip "số vé đã bán" dùng dữ liệu giả. Có thể thay bằng real query sau.
+===============================================================================
+-->
+<head th:replace="~{layout/header :: header}">
+    <title>Quản lý Suất Chiếu | Cinema Pro</title>
+</head>
+<body class="bg-[#121212]">
+
+    <div class="flex">
+        <!-- Sidebar -->
+        <aside th:replace="~{layout/sidebar :: sidebar}"></aside>
+
+        <div id="main-content-container" class="flex-1 flex flex-col min-w-0">
+            <!-- Navbar -->
+            <header th:replace="~{layout/navbar_admin :: navbar}"></header>
+
+            <main class="flex-1 p-6 xl:p-8 animate-fade-in">
+
+                <!-- ========================================================================
+                     PAGE HEADER
+                     ======================================================================== -->
+                <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
+                    <div>
+                        <h1 class="text-3xl font-bold text-white tracking-tight flex items-center gap-3">
+                            <i class="fas fa-clock text-cinema-red"></i>
+                            Quản lý suất chiếu
+                        </h1>
+                        <p class="text-white mt-2 text-sm">
+                            Lịch biểu chiếu phim &mdash;
+                            <span th:text="${#temporals.format(selectedDate, 'EEEE, dd/MM/yyyy')}"
+                                  class="text-white font-medium"></span>
+                        </p>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <!-- Calendar View button -->
+                        <a th:href="@{/admin/showtimes/calendar}"
+                           class="inline-flex items-center px-4 py-2 bg-white bg-opacity-5 text-white text-sm font-semibold rounded-lg
+                                   hover:bg-opacity-10 hover:text-white transition-all border border-white border-opacity-10">
+                            <i class="fas fa-calendar-alt mr-2"></i> Lịch tháng
+                        </a>
+                        <!-- Generate Seats button -->
+                        <form method="post" th:action="@{/admin/showtimes/generate-seats}" class="inline">
+                            <button type="submit" onclick="return confirm('Tạo ghế cho tất cả phòng? Ghế cũ sẽ bị xóa.')"
+                                    class="inline-flex items-center px-4 py-2 bg-green-700 bg-opacity-30 text-green-400 text-sm font-semibold rounded-lg
+                                           hover:bg-opacity-50 hover:text-green-300 transition-all border border-green-500 border-opacity-30">
+                                <i class="fas fa-chair mr-2"></i> Tạo ghế
+                            </button>
+                        </form>
+                        <!-- Refresh -->
+                        <button onclick="location.reload()"
+                                class="inline-flex items-center px-4 py-2 bg-white bg-opacity-5 text-white text-sm font-semibold rounded-lg
+                                       hover:bg-opacity-10 hover:text-white transition-all border border-white border-opacity-10">
+                            <i class="fas fa-sync mr-2"></i>
+                        </button>
+                        <!-- Add Showtime — floating / top-right button -->
+                        <button onclick="document.getElementById('addModal').showModal()"
+                                class="inline-flex items-center px-5 py-2.5 bg-cinema-red text-white text-sm font-bold rounded-lg
+                                       hover:shadow-[0_0_20px_rgba(229,9,20,0.5)] transition-all shadow-lg">
+                            <i class="fas fa-plus mr-2"></i> Thêm suất chiếu
+                        </button>
+                    </div>
+                </div>
+
+                <!-- ========================================================================
+                     DATE NAVIGATION
+                     ======================================================================== -->
+                <div class="flex flex-wrap items-center gap-2 mb-6">
+                    <!-- Previous day — sử dụng tham số date đơn giản -->
+                    <a th:href="@{/admin/showtimes(date=${selectedDate.minusDays(1)})}"
+                       class="px-4 py-2 bg-white bg-opacity-5 text-white text-sm font-semibold rounded-lg
+                              hover:bg-opacity-10 hover:text-white transition-all border border-white border-opacity-10">
+                        <i class="fas fa-chevron-left mr-1"></i> Hôm qua
+                    </a>
+                    <!-- Today -->
+                    <a th:href="@{/admin/showtimes}"
+                       class="px-5 py-2 bg-cinema-red text-white text-sm font-bold rounded-lg
+                              hover:shadow-[0_0_15px_rgba(229,9,20,0.4)] transition-all">
+                        <i class="fas fa-calendar-day mr-1"></i> Hôm nay
+                    </a>
+                    <!-- Next day -->
+                    <a th:href="@{/admin/showtimes(date=${selectedDate.plusDays(1)})}"
+                       class="px-4 py-2 bg-white bg-opacity-5 text-white text-sm font-semibold rounded-lg
+                              hover:bg-opacity-10 hover:text-white transition-all border border-white border-opacity-10">
+                        Ngày mai <i class="fas fa-chevron-right ml-1"></i>
+                    </a>
+                    <!-- Show date badge -->
+                    <span class="ml-3 px-3 py-1.5 rounded-full bg-white bg-opacity-5 border border-white border-opacity-10 text-xs text-white font-mono"
+                          th:text="${#temporals.format(selectedDate, 'dd/MM/yyyy')}"></span>
+                </div>
+
+                <!-- ========================================================================
+                     QUICK STATISTICS — 4 glass cards
+                     ======================================================================== -->
+                <div class="grid grid-cols-2 xl:grid-cols-4 gap-4 mb-8">
+
+                    <!-- Card 1: Suất chiếu hôm nay -->
+                    <div class="relative group">
+                        <div class="absolute -inset-0.5 bg-gradient-to-r from-cinema-red to-red-700 rounded-2xl opacity-20
+                                    group-hover:opacity-40 blur transition duration-500"></div>
+                        <div class="relative p-5 bg-[#1a1a1a] border border-white border-opacity-5 rounded-2xl
+                                    backdrop-blur-sm overflow-hidden">
+                            <div class="flex items-start justify-between mb-3">
+                                <span class="text-xs font-semibold text-white uppercase tracking-wider">Suất chiếu hôm nay</span>
+                                <div class="w-9 h-9 rounded-lg bg-red-500 bg-opacity-20 flex items-center justify-center">
+                                    <i class="fas fa-film text-cinema-red text-sm"></i>
+                                </div>
+                            </div>
+                            <p class="text-3xl font-bold text-white" th:text="${todayShowtimeCount}">0</p>
+                            <p class="text-xs text-white mt-1">
+                                <span th:if="${todayShowtimeCount > 0}" class="text-green-500">
+                                    <i class="fas fa-arrow-up mr-1"></i>Đang hoạt động
+                                </span>
+                                <span th:unless="${todayShowtimeCount > 0}" class="text-white">Chưa có suất chiếu</span>
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Card 2: Phòng đang hoạt động -->
+                    <div class="relative group">
+                        <div class="absolute -inset-0.5 bg-gradient-to-r from-blue-600 to-blue-800 rounded-2xl opacity-20
+                                    group-hover:opacity-40 blur transition duration-500"></div>
+                        <div class="relative p-5 bg-[#1a1a1a] border border-white border-opacity-5 rounded-2xl
+                                    backdrop-blur-sm overflow-hidden">
+                            <div class="flex items-start justify-between mb-3">
+                                <span class="text-xs font-semibold text-white uppercase tracking-wider">Phòng đang hoạt động</span>
+                                <div class="w-9 h-9 rounded-lg bg-blue-500 bg-opacity-20 flex items-center justify-center">
+                                    <i class="fas fa-door-open text-blue-400 text-sm"></i>
+                                </div>
+                            </div>
+                            <p class="text-3xl font-bold text-white" th:text="${activeRoomsCount + '/' + rooms.size()}">0/0</p>
+                            <p class="text-xs text-white mt-1" th:text="${activeRoomsCount > 0 ? activeRoomsCount + ' phòng đang chiếu' : 'Không có suất chiếu'}">
+                                ...
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Card 3: Tỷ lệ lấp đầy ghế -->
+                    <div class="relative group">
+                        <div class="absolute -inset-0.5 bg-gradient-to-r from-green-600 to-emerald-800 rounded-2xl opacity-20
+                                    group-hover:opacity-40 blur transition duration-500"></div>
+                        <div class="relative p-5 bg-[#1a1a1a] border border-white border-opacity-5 rounded-2xl
+                                    backdrop-blur-sm overflow-hidden">
+                            <div class="flex items-start justify-between mb-3">
+                                <span class="text-xs font-semibold text-white uppercase tracking-wider">Tỷ lệ lấp đầy ghế</span>
+                                <div class="w-9 h-9 rounded-lg bg-green-500 bg-opacity-20 flex items-center justify-center">
+                                    <i class="fas fa-users text-green-400 text-sm"></i>
+                                </div>
+                            </div>
+                            <!-- MOCK: bookedSeatsCount cần được tính từ bảng tickets -->
+                            <p class="text-3xl font-bold text-white" th:text="${totalSeats > 0 ? (bookedSeatsCount * 100 / totalSeats) : 0} + '%'">0%</p>
+                            <p class="text-xs text-white mt-1">
+                                <span th:text="${bookedSeatsCount + '/' + totalSeats + ' ghế'}">0/0 ghế</span>
+                                <span class="text-white"> · </span>
+                                <span class="text-yellow-500 italic">(mock)</span>
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Card 4: Tổng số vé đã bán -->
+                    <div class="relative group">
+                        <div class="absolute -inset-0.5 bg-gradient-to-r from-purple-600 to-violet-800 rounded-2xl opacity-20
+                                    group-hover:opacity-40 blur transition duration-500"></div>
+                        <div class="relative p-5 bg-[#1a1a1a] border border-white border-opacity-5 rounded-2xl
+                                    backdrop-blur-sm overflow-hidden">
+                            <div class="flex items-start justify-between mb-3">
+                                <span class="text-xs font-semibold text-white uppercase tracking-wider">Vé đã bán hôm nay</span>
+                                <div class="w-9 h-9 rounded-lg bg-purple-500 bg-opacity-20 flex items-center justify-center">
+                                    <i class="fas fa-ticket-alt text-purple-400 text-sm"></i>
+                                </div>
+                            </div>
+                            <!-- MOCK: bookedSeatsCount -->
+                            <p class="text-3xl font-bold text-white" th:text="${bookedSeatsCount}">0</p>
+                            <p class="text-xs text-white mt-1">
+                                <i class="fas fa-info-circle mr-1 text-white"></i>
+                                <span class="text-yellow-500 italic">cần tích hợp tickets query</span>
+                            </p>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- ========================================================================
+                     FILTER BAR
+                     ======================================================================== -->
+                <div class="card-cinema p-5 mb-8">
+                    <form method="get" th:action="@{/admin/showtimes}" class="flex flex-wrap items-end gap-4">
+                        <!-- Date -->
+                        <div class="flex-1 min-w-[180px]">
+                            <label class="block text-xs font-semibold text-white uppercase tracking-wider mb-2" for="filterDate">
+                                <i class="fas fa-calendar mr-1 text-cinema-red"></i> Ngày chiếu
+                            </label>
+                            <input type="date" name="date" id="filterDate"
+                                   th:value="${selectedDate}"
+                                   class="w-full glass-input px-4 py-2.5 text-sm text-white rounded-lg border border-white border-opacity-10
+                                          bg-white bg-opacity-5 focus:outline-none focus:border-cinema-red focus:ring-1 focus:ring-cinema-red transition">
+                        </div>
+
+                        <!-- Room -->
+                        <div class="flex-1 min-w-[160px]">
+                            <label class="block text-xs font-semibold text-white uppercase tracking-wider mb-2" for="filterRoom">
+                                <i class="fas fa-door-open mr-1 text-cinema-red"></i> Phòng chiếu
+                            </label>
+                            <select name="room" id="filterRoom"
+                                    class="w-full glass-input px-4 py-2.5 text-sm text-white rounded-lg border border-white border-opacity-10
+                                           bg-white bg-opacity-5 focus:outline-none focus:border-cinema-red focus:ring-1 focus:ring-cinema-red transition">
+                                <option value="">-- Tất cả phòng --</option>
+                                <option th:each="room : ${rooms}"
+                                        th:value="${room.id}"
+                                        th:text="${room.name}"
+                                        th:selected="${selectedRoomId == room.id}"></option>
+                            </select>
+                        </div>
+
+                        <!-- Movie (filter by movie — optional, added for convenience) -->
+                        <div class="flex-1 min-w-[180px]">
+                            <label class="block text-xs font-semibold text-white uppercase tracking-wider mb-2" for="filterMovie">
+                                <i class="fas fa-film mr-1 text-cinema-red"></i> Phim
+                            </label>
+                            <select name="movie" id="filterMovie" disabled
+                                    class="w-full px-4 py-2.5 text-sm text-white rounded-lg border border-white border-opacity-5
+                                           bg-white bg-opacity-[0.02] cursor-not-allowed">
+                                <option value="">-- Tất cả phim (sắp tới) --</option>
+                            </select>
+                        </div>
+
+                        <!-- Buttons -->
+                        <div class="flex gap-2 flex-shrink-0">
+                            <button type="submit"
+                                    class="px-5 py-2.5 bg-cinema-red text-white text-sm font-bold rounded-lg
+                                           hover:shadow-[0_0_15px_rgba(229,9,20,0.4)] transition-all">
+                                <i class="fas fa-search mr-1"></i> Lọc
+                            </button>
+                            <a th:href="@{/admin/showtimes}"
+                               class="px-4 py-2.5 bg-white bg-opacity-5 text-white text-sm font-semibold rounded-lg
+                                      hover:bg-opacity-10 hover:text-white transition-all border border-white border-opacity-10">
+                                <i class="fas fa-times"></i>
+                            </a>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- ========================================================================
+                     SCHEDULE BOARD — Timeline by Room
+                     ======================================================================== -->
+                <div class="card-cinema overflow-hidden">
+                    <!-- Time Ruler -->
+                    <div class="schedule-header border-b border-white border-opacity-10">
+                        <div class="flex">
+                            <!-- Room label column -->
+                            <div class="flex-shrink-0 w-36 lg:w-44 p-3 border-r border-white border-opacity-10 bg-white bg-opacity-[0.02]">
+                                <span class="text-xs font-bold text-white uppercase tracking-wider">Phòng chiếu</span>
+                            </div>
+                            <!-- Timeline ruler -->
+                            <div class="flex-1 overflow-x-auto custom-scrollbar">
+                                <div class="time-ruler flex h-10 min-w-[720px]">
+                                    <!-- Hours 06 → 23 (từ controller) -->
+                                    <th:block th:each="hour : ${hours}">
+                                        <div class="flex-1 min-w-[60px] flex items-end justify-start pb-1 px-2 border-l border-white border-opacity-5"
+                                             th:classappend="${hour % 3 == 0 ? 'border-l-white border-l-opacity-20' : ''}">
+                                            <span class="text-[11px] font-mono text-white font-medium"
+                                                  th:text="${hour < 10 ? '0' + hour + ':00' : hour + ':00'}"></span>
+                                        </div>
+                                    </th:block>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Room rows -->
+                    <div th:if="${#maps.size(showtimesByRoom) > 0}"
+                         class="divide-y divide-white divide-opacity-5">
+
+                        <div th:each="entry : ${showtimesByRoom.entrySet()}"
+                             class="room-row flex hover:bg-white hover:bg-opacity-[0.01] transition-colors">
+
+                            <!-- Room label -->
+                            <div class="flex-shrink-0 w-36 lg:w-44 p-3 border-r border-white border-opacity-10 flex flex-col justify-center bg-white bg-opacity-[0.02]">
+                                <span class="text-sm font-bold text-white truncate" th:text="${entry.key.name}">Room</span>
+                                <span class="text-xs text-white font-mono" th:text="${entry.key.totalSeats} + ' ghế'">0 ghế</span>
+                            </div>
+
+                            <!-- Timeline lane -->
+                            <div class="flex-1 overflow-x-auto custom-scrollbar relative">
+                                <div class="timeline-lane relative min-w-[720px] h-24">
+                                    <!-- Hour tick lines -->
+                                    <th:block th:each="hour : ${hours}">
+                                        <div th:attr="data-hour=${hour}"
+                                             class="absolute top-0 bottom-0 border-l border-white border-opacity-[0.03]"
+                                             th:classappend="${hour % 3 == 0 ? 'border-l-white border-l-opacity-[0.07]' : ''}"></div>
+                                    </th:block>
+
+                                    <!-- Showtime cards -->
+                                    <th:block th:each="showtime, showtimeStat : ${entry.value}">
+                                        <!--
+                                        Tính vị trí card dựa trên thời gian:
+                                          - Trục từ 06:00 → 24:00 (18 giờ = 1080 phút)
+                                          - left%  = ((giờ*60+phút) - 360) / 1080 * 100
+                                          - width% = (duration + 15) / 1080 * 100   (15 phút dọn phòng)
+                                        -->
+                                        <th:block th:if="${showtime.movie != null}">
+                                        <th:block th:if="${showtime.room != null}">
+                                        <th:block th:if="${showtime.startTime != null}">
+                                        <div class="showtime-card absolute top-2 bottom-2 rounded-xl cursor-pointer group/card
+                                                    transition-all duration-200 hover:z-20 hover:scale-y-[1.04]"
+                                             th:data-showtime-id="${showtime.id}"
+                                             th:data-start="${#temporals.format(showtime.startTime, 'HH:mm')}"
+                                             th:data-end="${#temporals.format(showtime.endTime, 'HH:mm')}"
+                                             th:data-title="${showtime.movie.title}"
+                                             th:data-duration="${showtime.movie.duration}"
+                                             th:data-room="${showtime.room.name}"
+                                             th:data-price="${showtime.price}"
+                                             th:data-status="${showtime.status}"
+
+                                             th:classappend="${showtime.status != null && showtime.status ? 'showtime-card--active' : 'showtime-card--disabled'}">
+
+                                            <!-- Glass background + gradient -->
+                                            <div class="absolute inset-0 rounded-xl bg-gradient-to-b from-white from-opacity-10 to-transparent
+                                                        border backdrop-blur-sm transition-all duration-300 group-hover/card:shadow-lg"
+                                                 th:classappend="${showtime.status != null && showtime.status ? 'border-white border-opacity-20 group-hover/card:border-cinema-red group-hover/card:border-opacity-60' : 'border-white border-opacity-5 opacity-50'}"></div>
+
+                                            <!-- Nội dung card -->
+                                            <div class="relative z-10 p-2 h-full flex flex-col justify-center overflow-hidden">
+                                                <div class="text-xs font-bold text-white truncate leading-tight group-hover/card:text-cinema-red transition-colors"
+                                                     th:text="${showtime.movie.title}">Movie</div>
+                                                <div class="text-[11px] text-white font-mono mt-0.5">
+                                                    <span th:text="${#temporals.format(showtime.startTime, 'HH:mm')}">00:00</span>
+                                                    &ndash;
+                                                    <span th:text="${#temporals.format(showtime.endTime, 'HH:mm')}" class="text-white">00:00</span>
+                                                </div>
+                                                <!-- Cleanup badge -->
+                                                <div th:if="${!showtimeStat.last}"
+                                                     class="absolute -right-1 top-1/2 -translate-y-1/2 translate-x-1/2 z-20 hidden lg:block">
+                                                    <div class="w-5 h-5 rounded-full bg-amber-500 bg-opacity-20 border border-amber-500 border-opacity-50
+                                                                flex items-center justify-center"
+                                                         title="15 phút dọn phòng">
+                                                        <i class="fas fa-broom text-amber-400 text-[8px]"></i>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <!-- Hover tooltip -->
+                                            <div class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 z-30
+                                                        opacity-0 group-hover/card:opacity-100 transition-opacity duration-200 pointer-events-none">
+                                                <div class="bg-zinc-900 border border-white border-opacity-10 rounded-xl p-3 shadow-2xl min-w-[200px]
+                                                            backdrop-blur-md">
+                                                    <div class="text-xs font-bold text-white mb-2" th:text="${showtime.movie.title}">Movie</div>
+                                                    <div class="text-[11px] text-white space-y-1">
+                                                        <div class="flex justify-between gap-4">
+                                                            <span>Phòng:</span>
+                                                            <span class="text-white font-medium" th:text="${showtime.room.name}">Room</span>
+                                                        </div>
+                                                        <div class="flex justify-between gap-4">
+                                                            <span>Giờ chiếu:</span>
+                                                            <span class="text-white font-medium" th:text="${#temporals.format(showtime.startTime, 'HH:mm')} + ' - ' + ${#temporals.format(showtime.endTime, 'HH:mm')}">...</span>
+                                                        </div>
+                                                        <div class="flex justify-between gap-4">
+                                                            <span>Thời lượng:</span>
+                                                            <span class="text-white font-medium" th:text="${showtime.movie.duration} + ' phút'">...</span>
+                                                        </div>
+                                                        <div class="flex justify-between gap-4">
+                                                            <span>Giá vé:</span>
+                                                            <span class="text-green-400 font-medium" th:text="${#numbers.formatDecimal(showtime.price, 0, 'COMMA', 0, 'POINT')} + '₫'">...</span>
+                                                        </div>
+                                                        <!-- MOCK: số vé đã bán (hardcode 0) -->
+                                                        <div class="flex justify-between gap-4 border-t border-white border-opacity-5 pt-1 mt-1">
+                                                            <span>Vé đã bán:</span>
+                                                            <span class="text-white font-medium">0</span>
+                                                        </div>
+                                                        <div class="flex justify-between gap-4">
+                                                            <span>Dọn phòng:</span>
+                                                            <span class="text-amber-400 font-medium">15 phút</span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <!-- Arrow -->
+                                                <div class="w-3 h-3 bg-zinc-900 border-r border-b border-white border-opacity-10 rotate-45 -mt-1.5 mx-auto rounded-sm"></div>
+                                            </div>
+
+                                            <!-- Action buttons (edit/delete on hover) -->
+                                            <div class="absolute top-1 right-1 z-20 flex gap-0.5 opacity-0 group-hover/card:opacity-100 transition-opacity">
+                                                <button type="button"
+                                                        onclick="openEditModal([[${showtime.id}]])"
+                                                        class="w-5 h-5 rounded bg-black bg-opacity-60 hover:bg-blue-600 flex items-center justify-center transition-colors"
+                                                        title="Chỉnh sửa">
+                                                    <i class="fas fa-pen text-[8px] text-white"></i>
+                                                </button>
+                                                <button type="button"
+                                                        onclick="deleteShowtime([[${showtime.id}]], '[[${selectedDate}]]')"
+                                                        class="w-5 h-5 rounded bg-black bg-opacity-60 hover:bg-red-600 flex items-center justify-center transition-colors"
+                                                        title="Xóa">
+                                                    <i class="fas fa-trash text-[8px] text-white"></i>
+                                                </button>
+                                            </div>
+
+                                        </div>
+                                        </th:block>
+                                        </th:block>
+                                        </th:block>
+                                    </th:block>
+
+                                    <!-- Empty state for room with no showtimes -->
+                                    <div th:if="${#lists.isEmpty(entry.value)}"
+                                         class="absolute inset-0 flex items-center justify-center text-white text-xs italic">
+                                        <i class="fas fa-plus-circle mr-2 text-white"></i> Chưa có suất chiếu
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Empty state: no showtimes at all -->
+                    <div th:unless="${#maps.size(showtimesByRoom) > 0}"
+                         class="py-16 text-center">
+                        <div class="w-16 h-16 mx-auto mb-4 rounded-full bg-white bg-opacity-5 flex items-center justify-center">
+                            <i class="fas fa-inbox text-2xl text-white"></i>
+                        </div>
+                        <p class="text-white text-sm">Không có suất chiếu nào trong ngày này</p>
+                        <button onclick="document.getElementById('addModal').showModal()"
+                                class="mt-4 px-5 py-2 bg-cinema-red text-white text-sm font-bold rounded-lg hover:shadow-[0_0_15px_rgba(229,9,20,0.4)] transition-all">
+                            <i class="fas fa-plus mr-1"></i> Thêm suất chiếu đầu tiên
+                        </button>
+                    </div>
+                </div>
+
+                <!-- ========================================================================
+                     LEGEND
+                     ======================================================================== -->
+                <div class="flex flex-wrap items-center gap-6 mt-6 text-xs text-white">
+                    <div class="flex items-center gap-2">
+                        <span class="w-4 h-4 rounded border border-green-500 border-opacity-60 bg-green-500 bg-opacity-20"></span>
+                        Đang chiếu
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <span class="w-4 h-4 rounded border border-cinema-red border-opacity-60 bg-cinema-red bg-opacity-20"></span>
+                        Sắp chiếu
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <span class="w-4 h-4 rounded border border-white border-opacity-10 bg-white bg-opacity-5 opacity-50"></span>
+                        Đã chiếu
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <span class="w-5 h-5 rounded-full bg-amber-500 bg-opacity-20 border border-amber-500 border-opacity-50 flex items-center justify-center">
+                            <i class="fas fa-broom text-amber-400 text-[8px]"></i>
+                        </span>
+                        15 phút dọn phòng
+                    </div>
+                    <div class="text-white flex items-center gap-1 ml-auto">
+                        <i class="fas fa-info-circle"></i>
+                        Di chuột vào suất chiếu để xem chi tiết
+                    </div>
+                </div>
+
+                <!-- ========================================================================
+                     DEBUG VIEW — toggle hiển thị dữ liệu raw từ server (dành cho admin debug)
+                     ======================================================================== -->
+                <div class="mt-8">
+                    <button onclick="toggleDebug()"
+                            class="text-xs text-white hover:text-white transition-colors flex items-center gap-2">
+                        <i class="fas fa-bug"></i> Debug: xem dữ liệu raw
+                    </button>
+                    <div id="debugPanel" class="hidden mt-3 p-4 bg-black bg-opacity-50 rounded-xl border border-white border-opacity-5">
+                        <h4 class="text-xs font-bold text-white uppercase tracking-wider mb-3">Dữ liệu showtimes (raw)</h4>
+
+                        <!-- Showtimes flat list -->
+                        <div class="mb-4">
+                            <p class="text-[11px] text-white mb-2">
+                                showtimes.size() =
+                                <span class="text-white font-mono" th:text="${#lists.size(showtimes)}">?</span>
+                                &nbsp;|&nbsp; showtimesByRoom.size() =
+                                <span class="text-white font-mono" th:text="${#maps.size(showtimesByRoom)}">?</span>
+                                &nbsp;|&nbsp; rooms.size() =
+                                <span class="text-white font-mono" th:text="${#lists.size(rooms)}">?</span>
+                                &nbsp;|&nbsp; selectedDate =
+                                <span class="text-white font-mono" th:text="${selectedDate}">?</span>
+                            </p>
+                        </div>
+
+                        <!-- Raw showtimes list (debug) -->
+                        <div th:if="${#lists.size(showtimes) > 0}" class="space-y-2">
+                            <p class="text-[11px] text-white font-semibold">📋 showtimes list:</p>
+                            <div th:each="st : ${showtimes}" class="text-[11px] font-mono text-white pl-3 border-l border-white border-opacity-5">
+                                <span class="text-white" th:text="${st.id}">id</span>
+                                <span th:text="' | movie=' + (st.movie != null ? st.movie.title : 'NULL')">title</span>
+                                <span th:text="' | room=' + (st.room != null ? st.room.name : 'NULL')">room</span>
+                                <span th:if="${st.startTime != null}" th:text="' | start=' + st.startTime">start</span>
+                                <span th:if="${st.startTime == null}" th:text="' | start=NULL'">start</span>
+                                <span th:if="${st.endTime != null}" th:text="' | end=' + st.endTime">end</span>
+                                <span th:if="${st.endTime == null}" th:text="' | end=NULL'">end</span>
+                                <span th:text="' | status=' + st.status">status</span>
+                            </div>
+                        </div>
+                        <div th:unless="${#lists.size(showtimes) > 0}" class="text-[11px] text-white italic">
+                            showtimes list is empty.
+                            <span class="text-yellow-700">Thử chọn ngày khác từ bộ lọc phía trên.</span>
+                        </div>
+                    </div>
+                </div>
+
+                <script>
+                    function toggleDebug() {
+                        var p = document.getElementById('debugPanel');
+                        p.classList.toggle('hidden');
+                    }
+                </script>
+
+            </main>
+
+            <!-- Footer -->
+            <footer th:replace="~{layout/footer :: footer}"></footer>
+        </div>
+    </div>
+
+    <!-- ========================================================================
+         MODAL — THÊM SUẤT CHIẾU (DaisyUI)
+         ======================================================================== -->
+    <dialog id="addModal" class="modal">
+        <div class="modal-box bg-zinc-900 border border-white border-opacity-10 rounded-2xl p-0 overflow-hidden max-w-lg w-full">
+            <!-- Modal Header -->
+            <div class="p-6 pb-4 border-b border-white border-opacity-5">
+                <div class="flex items-center justify-between">
+                    <h3 class="text-xl font-bold text-white flex items-center gap-3">
+                        <i class="fas fa-plus-circle text-cinema-red"></i>
+                        Thêm suất chiếu
+                    </h3>
+                    <form method="dialog">
+                        <button class="w-8 h-8 rounded-lg bg-white bg-opacity-5 hover:bg-opacity-10 text-white hover:text-white transition-colors flex items-center justify-center">
+                            <i class="fas fa-times text-sm"></i>
+                        </button>
+                    </form>
+                </div>
+                <p class="text-sm text-white mt-2">Nhập thông tin để tạo suất chiếu mới</p>
+            </div>
+
+            <!-- Modal Body -->
+            <div class="p-6 space-y-5">
+                <form method="post" th:action="@{/admin/showtimes}" id="showtimeForm" class="space-y-5">
+                    <input type="hidden" name="date" th:value="${selectedDate}">
+
+                    <!-- Movie -->
+                    <div>
+                        <label class="block text-xs font-semibold text-white uppercase tracking-wider mb-2" for="movieSelect">
+                            <i class="fas fa-film mr-1 text-cinema-red"></i> Phim <span class="text-cinema-red">*</span>
+                        </label>
+                        <select name="movieId" id="movieSelect" required
+                                class="w-full bg-white bg-opacity-5 border border-white border-opacity-10 rounded-xl px-4 py-3 text-sm text-white
+                                       focus:outline-none focus:border-cinema-red focus:ring-1 focus:ring-cinema-red transition
+                                       appearance-none"
+                                onchange="updateMovieDuration()">
+                            <option value="" class="bg-zinc-800">-- Chọn phim --</option>
+                            <option th:each="movie : ${movies}"
+                                    th:value="${movie.id}"
+                                    th:text="${movie.title}"
+                                    th:data-duration="${movie.duration}"
+                                    class="bg-zinc-800"></option>
+                        </select>
+                    </div>
+
+                    <!-- Room -->
+                    <div>
+                        <label class="block text-xs font-semibold text-white uppercase tracking-wider mb-2" for="roomSelect">
+                            <i class="fas fa-door-open mr-1 text-cinema-red"></i> Phòng chiếu <span class="text-cinema-red">*</span>
+                        </label>
+                        <select name="roomId" id="roomSelect" required
+                                class="w-full bg-white bg-opacity-5 border border-white border-opacity-10 rounded-xl px-4 py-3 text-sm text-white
+                                       focus:outline-none focus:border-cinema-red focus:ring-1 focus:ring-cinema-red transition
+                                       appearance-none"
+                                onchange="checkConflict()">
+                            <option value="" class="bg-zinc-800">-- Chọn phòng --</option>
+                            <option th:each="room : ${rooms}"
+                                    th:value="${room.id}"
+                                    th:text="${room.name}"
+                                    class="bg-zinc-800"></option>
+                        </select>
+                    </div>
+
+                    <!-- Start Time -->
+                    <div>
+                        <label class="block text-xs font-semibold text-white uppercase tracking-wider mb-2" for="startTime">
+                            <i class="fas fa-clock mr-1 text-cinema-red"></i> Thời gian bắt đầu <span class="text-cinema-red">*</span>
+                        </label>
+                        <div class="relative">
+                            <input type="datetime-local" name="startTime" id="startTime" required
+                                   class="w-full bg-white bg-opacity-5 border border-white border-opacity-10 rounded-xl px-4 py-3 text-sm text-white
+                                          focus:outline-none focus:border-cinema-red focus:ring-1 focus:ring-cinema-red transition"
+                                   onchange="checkConflict()">
+                            <i class="far fa-calendar-alt absolute right-3 top-1/2 -translate-y-1/2 text-white pointer-events-none"></i>
+                        </div>
+                    </div>
+
+                    <!-- End Time (auto) -->
+                    <div>
+                        <label class="block text-xs font-semibold text-white uppercase tracking-wider mb-2" for="endTime">
+                            <i class="fas fa-flag-checkered mr-1"></i> Thời gian kết thúc (tự động)
+                        </label>
+                        <input type="datetime-local" id="endTime" disabled
+                               class="w-full bg-white bg-opacity-[0.02] border border-white border-opacity-5 rounded-xl px-4 py-3 text-sm text-white cursor-not-allowed">
+                        <p class="text-xs text-white mt-2 flex items-center gap-2">
+                            <i class="fas fa-broom text-amber-500"></i>
+                            Bao gồm 15 phút <span class="text-amber-500 font-medium">dọn phòng</span>
+                        </p>
+                    </div>
+
+                    <!-- Price -->
+                    <div>
+                        <label class="block text-xs font-semibold text-white uppercase tracking-wider mb-2" for="priceInput">
+                            <i class="fas fa-tag mr-1 text-cinema-red"></i> Giá vé (VNĐ)
+                        </label>
+                        <input type="number" name="price" id="priceInput" placeholder="100.000" step="1000"
+                               class="w-full bg-white bg-opacity-5 border border-white border-opacity-10 rounded-xl px-4 py-3 text-sm text-white
+                                      focus:outline-none focus:border-cinema-red focus:ring-1 focus:ring-cinema-red transition
+                                      placeholder-gray-700">
+                    </div>
+
+                    <!-- Conflict Alert -->
+                    <div id="conflictAlert" class="hidden p-4 bg-red-500 bg-opacity-10 border border-red-500 border-opacity-30 rounded-xl">
+                        <p class="text-red-400 text-xs font-bold mb-2 flex items-center gap-2">
+                            <i class="fas fa-exclamation-triangle"></i> Xung đột phòng chiếu!
+                        </p>
+                        <div id="conflictDetails" class="text-red-300 text-[11px] space-y-1"></div>
+                    </div>
+
+                    <!-- Submit -->
+                    <button type="submit" id="submitBtn"
+                            class="w-full px-5 py-3 bg-cinema-red text-white text-sm font-bold rounded-xl
+                                   hover:shadow-[0_0_20px_rgba(229,9,20,0.5)] transition-all
+                                   disabled:opacity-50 disabled:cursor-not-allowed">
+                        <i class="fas fa-plus mr-2"></i> Tạo suất chiếu
+                    </button>
+
+                    <!-- Debug: kiểm tra dữ liệu form trước khi submit -->
+                    <div id="debugForm" class="hidden text-[11px] text-white p-3 bg-black bg-opacity-30 rounded border border-white border-opacity-5">
+                        <p><strong>Debug Form Data:</strong></p>
+                        <p>movieId: <span id="debugMovieId">?</span></p>
+                        <p>roomId: <span id="debugRoomId">?</span></p>
+                        <p>startTime: <span id="debugStartTime">?</span></p>
+                        <p>endTime: <span id="debugEndTime">?</span></p>
+                        <p>price: <span id="debugPrice">?</span></p>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <!-- Backdrop click to close -->
+        <form method="dialog" class="modal-backdrop">
+            <button>close</button>
+        </form>
+    </dialog>
+
+    <!-- ========================================================================
+         MODAL — CHỈNH SỬA SUẤT CHIẾU (DaisyUI)
+         ======================================================================== -->
+    <dialog id="editModal" class="modal">
+        <div class="modal-box bg-zinc-900 border border-white border-opacity-10 rounded-2xl p-0 overflow-hidden max-w-lg w-full">
+            <div class="p-6 pb-4 border-b border-white border-opacity-5">
+                <div class="flex items-center justify-between">
+                    <h3 class="text-xl font-bold text-white flex items-center gap-3">
+                        <i class="fas fa-edit text-cinema-red"></i>
+                        Chỉnh sửa suất chiếu
+                    </h3>
+                    <form method="dialog">
+                        <button class="w-8 h-8 rounded-lg bg-white bg-opacity-5 hover:bg-opacity-10 text-white hover:text-white transition-colors flex items-center justify-center">
+                            <i class="fas fa-times text-sm"></i>
+                        </button>
+                    </form>
+                </div>
+                <p class="text-sm text-white mt-2">Cập nhật thông tin suất chiếu</p>
+            </div>
+            <div class="p-6">
+                <!-- Edit form will be populated via JS -->
+                <form method="post" th:action="@{/admin/showtimes}" id="editForm" class="space-y-5">
+                    <input type="hidden" name="date" th:value="${selectedDate}">
+                    <input type="hidden" name="id" id="editId">
+
+                    <div>
+                        <label class="block text-xs font-semibold text-white uppercase tracking-wider mb-2">Phim</label>
+                        <select name="movieId" id="editMovieId" required
+                                class="w-full bg-white bg-opacity-5 border border-white border-opacity-10 rounded-xl px-4 py-3 text-sm text-white
+                                       focus:outline-none focus:border-cinema-red focus:ring-1 focus:ring-cinema-red transition appearance-none">
+                            <option value="" class="bg-zinc-800">-- Chọn phim --</option>
+                            <option th:each="movie : ${movies}"
+                                    th:value="${movie.id}"
+                                    th:text="${movie.title}"
+                                    class="bg-zinc-800"></option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-semibold text-white uppercase tracking-wider mb-2">Phòng chiếu</label>
+                        <select name="roomId" id="editRoomId" required
+                                class="w-full bg-white bg-opacity-5 border border-white border-opacity-10 rounded-xl px-4 py-3 text-sm text-white
+                                       focus:outline-none focus:border-cinema-red focus:ring-1 focus:ring-cinema-red transition appearance-none">
+                            <option value="" class="bg-zinc-800">-- Chọn phòng --</option>
+                            <option th:each="room : ${rooms}"
+                                    th:value="${room.id}"
+                                    th:text="${room.name}"
+                                    class="bg-zinc-800"></option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-semibold text-white uppercase tracking-wider mb-2">Giờ bắt đầu</label>
+                        <input type="datetime-local" name="startTime" id="editStartTime" required
+                               class="w-full bg-white bg-opacity-5 border border-white border-opacity-10 rounded-xl px-4 py-3 text-sm text-white
+                                      focus:outline-none focus:border-cinema-red focus:ring-1 focus:ring-cinema-red transition">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-semibold text-white uppercase tracking-wider mb-2">
+                            <i class="fas fa-tag mr-1 text-cinema-red"></i> Giá vé (VNĐ)
+                        </label>
+                        <input type="number" name="price" id="editPrice" placeholder="100.000" step="1000"
+                               class="w-full bg-white bg-opacity-5 border border-white border-opacity-10 rounded-xl px-4 py-3 text-sm text-white
+                                      focus:outline-none focus:border-cinema-red focus:ring-1 focus:ring-cinema-red transition
+                                      placeholder-gray-700">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-semibold text-white uppercase tracking-wider mb-2">
+                            <i class="fas fa-toggle-on mr-1 text-cinema-red"></i> Trạng thái
+                        </label>
+                        <select name="status" id="editStatus"
+                                class="w-full bg-white bg-opacity-5 border border-white border-opacity-10 rounded-xl px-4 py-3 text-sm text-white
+                                       focus:outline-none focus:border-cinema-red focus:ring-1 focus:ring-cinema-red transition appearance-none">
+                            <option value="true" class="bg-zinc-800">Hoạt động</option>
+                            <option value="false" class="bg-zinc-800">Vô hiệu hóa</option>
+                        </select>
+                    </div>
+
+                    <div id="editTicketInfo" class="hidden p-3 bg-amber-500 bg-opacity-10 border border-amber-500 border-opacity-30 rounded-xl">
+                        <p class="text-amber-400 text-xs flex items-center gap-2">
+                            <i class="fas fa-ticket-alt"></i>
+                            <span id="editTicketInfoText"></span>
+                        </p>
+                    </div>
+
+                    <button type="submit"
+                            class="w-full px-5 py-3 bg-cinema-red text-white text-sm font-bold rounded-xl
+                                   hover:shadow-[0_0_20px_rgba(229,9,20,0.5)] transition-all">
+                        <i class="fas fa-save mr-2"></i> Cập nhật
+                    </button>
+                </form>
+            </div>
+        </div>
+        <form method="dialog" class="modal-backdrop">
+            <button>close</button>
+        </form>
+    </dialog>
+
+    <!-- ========================================================================
+     SCRIPTS
+     ======================================================================== -->
+    <!-- DaisyUI — used for <dialog> modal API (polyfill for older browsers) -->
+    <script>
+        // =====================================================================
+        // DaisyUI Modal helpers — uses native <dialog> API
+        // =====================================================================
+        document.addEventListener('DOMContentLoaded', function () {
+
+            // --- Modal close on backdrop click ---
+            document.querySelectorAll('.modal-backdrop button').forEach(function (btn) {
+                btn.addEventListener('click', function () {
+                    this.closest('dialog').close();
+                });
+            });
+        });
+
+        // =====================================================================
+        // Form submission handler — validate & submit
+        // =====================================================================
+        function validateAndSubmitForm(event) {
+            event.preventDefault();
+            
+            const movieId = document.getElementById('movieSelect').value;
+            const roomId = document.getElementById('roomSelect').value;
+            const startTime = document.getElementById('startTime').value;
+            const price = document.getElementById('priceInput').value;
+            
+            // Validate required fields
+            if (!movieId) {
+                alert('Vui lòng chọn phim!');
+                return false;
+            }
+            if (!roomId) {
+                alert('Vui lòng chọn phòng!');
+                return false;
+            }
+            if (!startTime) {
+                alert('Vui lòng chọn thời gian bắt đầu!');
+                return false;
+            }
+            
+            // Log form data
+            console.log('Form data:', {movieId, roomId, startTime, price});
+            
+            // Close modal if open
+            const modal = document.getElementById('addModal');
+            if (modal) {
+                modal.close();
+            }
+            
+            // Submit form
+            document.getElementById('showtimeForm').submit();
+            return false;
+        }
+
+        // =====================================================================
+        // Movie duration — auto-calculate end time
+        // =====================================================================
+        function updateMovieDuration() {
+            const sel = document.getElementById('movieSelect');
+            const opt = sel.options[sel.selectedIndex];
+            const dur = opt ? opt.getAttribute('data-duration') : null;
+            if (dur) console.log('Movie duration: ' + dur + ' min');
+        }
+
+        // =====================================================================
+        // Form submission handler — validate & submit
+        // =====================================================================
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.getElementById('showtimeForm');
+            if (form) {
+                form.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    
+                    // Validate
+                    const movieId = document.getElementById('movieSelect').value;
+                    const roomId = document.getElementById('roomSelect').value;
+                    const startTime = document.getElementById('startTime').value;
+                    const price = document.getElementById('priceInput').value;
+                    
+                    if (!movieId || !roomId || !startTime) {
+                        alert('Vui lòng nhập đầy đủ thông tin!');
+                        return;
+                    }
+                    
+                    // DEBUG
+                    document.getElementById('debugMovieId').textContent = movieId;
+                    document.getElementById('debugRoomId').textContent = roomId;
+                    document.getElementById('debugStartTime').textContent = startTime;
+                    document.getElementById('debugEndTime').textContent = document.getElementById('endTime').value;
+                    document.getElementById('debugPrice').textContent = price;
+                    document.getElementById('debugForm').classList.remove('hidden');
+                    
+                    // Submit form
+                    console.log('Submitting form with:', {movieId, roomId, startTime, price});
+                    form.submit();
+                });
+            }
+        });
+
+        // =====================================================================
+        // Conflict check
+        // =====================================================================
+        function checkConflict() {
+            const roomId = document.getElementById('roomSelect').value;
+            const startVal = document.getElementById('startTime').value;
+            const sel = document.getElementById('movieSelect');
+            const opt = sel.options[sel.selectedIndex];
+            const duration = parseInt(opt ? opt.getAttribute('data-duration') || '120' : '120');
+
+            if (!roomId || !startVal) return;
+
+            const startDT = new Date(startVal);
+            const endDT = new Date(startDT.getTime() + (duration + 15) * 60000);
+
+            // Update end time display
+            document.getElementById('endTime').value = toDatetimeLocal(endDT);
+
+            // Format for API — dùng giờ địa phương, không phải UTC
+            const startISO = toDatetimeLocal(startDT) + ':00';
+            const endISO = toDatetimeLocal(endDT) + ':00';
+
+            fetch('/admin/showtimes/api/check-conflict', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: 'roomId=' + encodeURIComponent(roomId)
+                    + '&startTime=' + encodeURIComponent(startISO)
+                    + '&endTime=' + encodeURIComponent(endISO)
+            })
+            .then(function (r) { return r.json(); })
+            .then(function (data) {
+                var alert = document.getElementById('conflictAlert');
+                var details = document.getElementById('conflictDetails');
+                var btn = document.getElementById('submitBtn');
+                var form = document.getElementById('showtimeForm');
+
+                if (data.hasConflict) {
+                    alert.classList.remove('hidden');
+                    btn.disabled = true;
+                    btn.classList.add('opacity-50', 'cursor-not-allowed');
+
+                    var html = '';
+                    (data.conflictingShowtimes || []).forEach(function (s) {
+                        var st = new Date(s.startTime).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
+                        var et = new Date(s.endTime).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
+                        html += '<div class="mb-1">🎬 ' + (s.movie ? s.movie.title : '?') + ' (' + st + ' - ' + et + ')</div>';
+                    });
+                    details.innerHTML = html;
+                } else {
+                    alert.classList.add('hidden');
+                    btn.disabled = false;
+                    btn.classList.remove('opacity-50', 'cursor-not-allowed');
+                }
+            })
+            .catch(function (err) { console.error('Conflict check error:', err); });
+        }
+
+        // =====================================================================
+        // Edit showtime — populate edit modal với AJAX
+        // =====================================================================
+        function openEditModal(id) {
+            var dialog = document.getElementById('editModal');
+            var form = document.getElementById('editForm');
+            form.action = '/admin/showtimes/' + id + '/update';
+            document.getElementById('editId').value = id;
+
+            // Fetch thông tin suất chiếu từ API
+            fetch('/admin/showtimes/api/' + id)
+                .then(function (r) { return r.json(); })
+                .then(function (data) {
+                    if (data.errorMessage) {
+                        alert('Lỗi: ' + data.errorMessage);
+                        return;
+                    }
+
+                    document.getElementById('editMovieId').value = data.movieId || '';
+                    document.getElementById('editRoomId').value = data.roomId || '';
+                    document.getElementById('editStartTime').value = data.startTime ? data.startTime.substring(0, 16) : '';
+
+                    // Populate price if field exists
+                    var priceField = document.getElementById('editPrice');
+                    if (priceField && data.price != null) {
+                        priceField.value = data.price;
+                    }
+
+                    // Populate status if field exists
+                    var statusField = document.getElementById('editStatus');
+                    if (statusField && data.status != null) {
+                        statusField.value = data.status.toString();
+                    }
+
+                    // Hiển thị thông tin vé đã bán
+                    var ticketInfo = document.getElementById('editTicketInfo');
+                    if (ticketInfo) {
+                        if (data.ticketCount > 0) {
+                            var msg = data.ticketCount + ' vé đã được đặt';
+                            if (data.hasPaidBookings) msg += ' (có vé đã thanh toán)';
+                            ticketInfo.textContent = msg;
+                            ticketInfo.classList.remove('hidden');
+                        } else {
+                            ticketInfo.classList.add('hidden');
+                        }
+                    }
+                })
+                .catch(function (err) {
+                    console.error('Error fetching showtime:', err);
+                    alert('Không thể tải thông tin suất chiếu');
+                });
+
+            dialog.showModal();
+        }
+
+        // =====================================================================
+        // Delete showtime — xác nhận kèm kiểm tra vé
+        // =====================================================================
+        function deleteShowtime(id, date) {
+            // Fetch thông tin suất chiếu để hiển thị cảnh báo
+            fetch('/admin/showtimes/api/' + id)
+                .then(function (r) { return r.json(); })
+                .then(function (data) {
+                    var msg = 'Bạn có chắc muốn xóa suất chiếu này?';
+                    if (data.ticketCount > 0) {
+                        msg = 'Suất chiếu này đã có ' + data.ticketCount + ' vé được đặt';
+                        if (data.hasPaidBookings) {
+                            msg += ' (có vé đã thanh toán).\nKhông thể xóa! Hãy dùng chức năng "Vô hiệu hóa" thay thế.';
+                            alert(msg);
+                            return;
+                        }
+                        msg += '.\nXóa suất chiếu sẽ hủy các vé này. Bạn có chắc chắn?';
+                    }
+                    if (confirm(msg)) {
+                        var f = document.createElement('form');
+                        f.method = 'POST';
+                        f.action = '/admin/showtimes/' + id + '/delete?date=' + encodeURIComponent(date);
+                        document.body.appendChild(f);
+                        f.submit();
+                    }
+                })
+                .catch(function (err) {
+                    console.error('Error checking tickets:', err);
+                    if (confirm('Bạn có chắc muốn xóa suất chiếu này?')) {
+                        var f = document.createElement('form');
+                        f.method = 'POST';
+                        f.action = '/admin/showtimes/' + id + '/delete?date=' + encodeURIComponent(date);
+                        document.body.appendChild(f);
+                        f.submit();
+                    }
+                });
+        }
+
+        // =====================================================================
+        // Helpers
+        // =====================================================================
+        function toDatetimeLocal(d) {
+            var pad = function (n) { return (n < 10 ? '0' : '') + n; };
+            return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate())
+                + 'T' + pad(d.getHours()) + ':' + pad(d.getMinutes());
+        }
+    </script>
+
+    <!-- ========================================================================
+     CUSTOM STYLES FOR SCHEDULE BOARD
+     ======================================================================== -->
+    <style>
+        /* --- Showtime card states --- */
+        .showtime-card--active {
+            /* Base: glassmorphism — status derived from JS below */
+            filter: none;
+            opacity: 1;
+        }
+
+        .showtime-card--disabled {
+            opacity: 0.35;
+            filter: grayscale(0.6);
+        }
+
+        /* --- Play / upcoming / done states applied via JS --- */
+        .showtime-card--playing {
+            box-shadow: 0 0 12px rgba(34, 197, 94, 0.4), inset 0 0 8px rgba(34, 197, 94, 0.05);
+            border-color: rgba(34, 197, 94, 0.6) !important;
+        }
+        .showtime-card--playing > div:first-child {
+            border-color: rgba(34, 197, 94, 0.6) !important;
+        }
+
+        .showtime-card--upcoming {
+            box-shadow: 0 0 12px rgba(220, 38, 38, 0.3), inset 0 0 8px rgba(220, 38, 38, 0.05);
+            border-color: rgba(220, 38, 38, 0.5) !important;
+        }
+        .showtime-card--upcoming > div:first-child {
+            border-color: rgba(220, 38, 38, 0.5) !important;
+        }
+
+        .showtime-card--done {
+            opacity: 0.5;
+            filter: grayscale(0.5);
+        }
+
+        /* --- Timeline lane --- */
+        .timeline-lane {
+            position: relative;
+            min-height: 5rem;
+        }
+
+        /* --- Custom scrollbar --- */
+        .custom-scrollbar::-webkit-scrollbar {
+            height: 6px;
+            width: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 3px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 3px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        /* --- Time ruler --- */
+        .time-ruler {
+            background: rgba(0, 0, 0, 0.15);
+        }
+
+        /* --- Card hover scale preserves layout --- */
+        .showtime-card:hover {
+            z-index: 20 !important;
+        }
+
+        /* --- DaisyUI dialog backdrop --- */
+        .modal::backdrop {
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(4px);
+        }
+
+        /* --- Smooth open/close for dialog --- */
+        dialog[open] {
+            animation: fadeInScale 0.2s ease-out;
+        }
+        @keyframes fadeInScale {
+            from {
+                opacity: 0;
+                transform: scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        /* --- Room row hover --- */
+        .room-row:hover .showtime-card {
+            filter: brightness(1.1);
+        }
+
+        /* --- Responsive --- */
+        @media (max-width: 768px) {
+            .w-36.lg\:w-44 {
+                width: 5rem;
+            }
+        }
+    </style>
+
+    <!-- ========================================================================
+     TIMELINE POSITIONING — assign play/upcoming/done states
+     ======================================================================== -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // --- Position hour tick lines ---
+            document.querySelectorAll('[data-hour]').forEach(function (el) {
+                var hour = parseInt(el.getAttribute('data-hour'), 10);
+                el.style.left = ((hour - 6) * 100.0 / 18) + '%';
+            });
+
+            // --- Position showtime cards + status ---
+            var now = new Date();
+
+            document.querySelectorAll('.showtime-card').forEach(function (card) {
+                var startStr = card.getAttribute('data-start');
+                var durStr = card.getAttribute('data-duration');
+                var endStr = card.getAttribute('data-end');
+                if (!startStr || !durStr) return;
+
+                // Left & width from start time + duration
+                var parts = startStr.split(':');
+                var startMinutes = parseInt(parts[0], 10) * 60 + parseInt(parts[1], 10);
+                var totalMinutes = parseInt(durStr, 10) + 15; // +15 cleanup
+
+                card.style.left = ((startMinutes - 360) * 100.0 / 1080) + '%';
+                card.style.width = (totalMinutes * 100.0 / 1080) + '%';
+
+                // Status: playing / upcoming / done
+                if (!endStr) return;
+                var endParts = endStr.split(':');
+                var start = new Date();
+                start.setHours(parseInt(parts[0], 10), parseInt(parts[1], 10), 0, 0);
+                var end = new Date();
+                end.setHours(parseInt(endParts[0], 10), parseInt(endParts[1], 10), 0, 0);
+
+                if (now > end) {
+                    card.classList.add('showtime-card--done');
+                } else if (now >= start && now <= end) {
+                    card.classList.add('showtime-card--playing');
+                } else {
+                    card.classList.add('showtime-card--upcoming');
+                }
+            });
+        });
+    </script>
+
+</body>
+</html>

@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/main}">
+<head>
+    <title>Smart Cinema - Đặt Vé Thành Công</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #0b0f15 !important;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .phone {
+            width: 100%;
+            max-width: 393px;
+            background: #0b0f15;
+            background-image: radial-gradient(ellipse at 50% 0%, rgba(229,9,20,0.05) 0%, transparent 70%);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        .status {
+            height: 54px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 32px;
+            color: #fff;
+            font-size: 14px;
+            font-weight: 600;
+            flex-shrink: 0;
+        }
+        .status .time { font-weight: 700; }
+        .status .icons { display: flex; align-items: center; gap: 6px; font-size: 13px; }
+
+        .header {
+            height: 52px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 24px;
+            flex-shrink: 0;
+        }
+        .header .brand { display: flex; align-items: center; gap: 8px; }
+        .header .brand i { color: #E50914; font-size: 17px; }
+        .header .brand h1 {
+            color: #E50914;
+            font-size: 17px;
+            font-weight: 900;
+            letter-spacing: -0.3px;
+            text-transform: uppercase;
+            font-style: italic;
+        }
+        .header .user { display: flex; align-items: center; gap: 8px; }
+        .header .user .av {
+            width: 32px; height: 32px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid rgba(255,255,255,0.06);
+        }
+        .header .user .dot {
+            position: absolute; bottom: -1px; right: -1px;
+            width: 9px; height: 9px;
+            background: #22c55e;
+            border: 2px solid #0b0f15;
+            border-radius: 50%;
+        }
+        .header .user .av-w { position: relative; }
+        .header .user i { color: rgba(255,255,255,0.25); font-size: 10px; }
+
+        .body {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 40px 24px;
+        }
+
+        .success {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 32px;
+        }
+        .success .circle {
+            width: 64px; height: 64px;
+            background: #E50914;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 0 32px rgba(229,9,20,0.4);
+            border: 3px solid #0b0f15;
+            margin-bottom: 10px;
+        }
+        .success .circle i { color: #fff; font-size: 26px; }
+        .success h2 {
+            color: #fff;
+            font-size: 22px;
+            font-weight: 900;
+            letter-spacing: -0.3px;
+        }
+        .success p {
+            color: rgba(255,255,255,0.3);
+            font-size: 12px;
+            font-weight: 500;
+            margin-top: 4px;
+        }
+
+        .card {
+            background: rgba(26,29,35,0.92);
+            backdrop-filter: blur(40px);
+            -webkit-backdrop-filter: blur(40px);
+            border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 24px;
+            padding: 16px;
+            box-shadow: 0 24px 50px -20px rgba(0,0,0,0.5);
+        }
+        .card-inner { display: flex; gap: 14px; }
+
+        .poster { width: 110px; flex-shrink: 0; }
+        .poster img {
+            width: 100%;
+            border-radius: 12px;
+            object-fit: cover;
+            aspect-ratio: 2/3;
+            box-shadow: 0 8px 24px -8px rgba(0,0,0,0.5);
+            border: 1px solid rgba(255,255,255,0.03);
+        }
+
+        .details { flex: 1; min-width: 0; }
+        .details .heading {
+            color: #fff;
+            font-size: 13px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-bottom: 10px;
+        }
+        .details .heading i { color: #facc15; font-size: 13px; }
+
+        .row {
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+            margin-bottom: 7px;
+        }
+        .row:last-child { margin-bottom: 0; }
+        .row .ico { width: 16px; flex-shrink: 0; padding-top: 1px; }
+        .row .ico i { color: rgba(255,255,255,0.18); font-size: 12px; }
+        .row .lbl {
+            color: rgba(255,255,255,0.25);
+            font-size: 8px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            line-height: 1;
+            margin-bottom: 2px;
+        }
+        .row .val { color: #fff; font-size: 12px; font-weight: 600; line-height: 1.3; }
+        .row .val.mono { font-family: 'Courier New', monospace; font-size: 13px; }
+        .row .val.price { color: #E50914; font-size: 14px; font-weight: 800; }
+        .row .val.mtitle { font-size: 12px; font-weight: 700; line-height: 1.3; }
+
+        .seat-group { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 3px; }
+        .seat-chip {
+            padding: 2px 12px;
+            background: #E50914;
+            color: #fff;
+            font-size: 10px;
+            font-weight: 800;
+            border-radius: 5px;
+        }
+
+        .pay-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 3px 10px;
+            background: rgba(229,9,20,0.1);
+            border: 1px solid rgba(229,9,20,0.15);
+            border-radius: 999px;
+            font-size: 11px;
+            font-weight: 700;
+            color: #fff;
+            margin-top: 2px;
+        }
+        .pay-chip i { color: #E50914; font-size: 10px; }
+
+        .btns {
+            margin-top: 28px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .btn-p {
+            width: 100%;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            background: linear-gradient(to right, #E50914, #9b070d);
+            border: none;
+            border-radius: 14px;
+            color: #fff;
+            font-size: 13px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+        }
+        .btn-p:hover { filter: brightness(1.1); transform: translateY(-1px); box-shadow: 0 8px 20px rgba(229,9,20,0.2); }
+        .btn-p i { font-size: 14px; }
+
+        .btn-s {
+            width: 100%;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            background: rgba(255,255,255,0.02);
+            border: 1px solid rgba(255,255,255,0.07);
+            border-radius: 14px;
+            color: #fff;
+            font-size: 13px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+        }
+        .btn-s:hover { background: rgba(255,255,255,0.06); border-color: rgba(255,255,255,0.12); }
+        .btn-s i { font-size: 12px; color: rgba(255,255,255,0.35); }
+
+        .footer {
+            padding: 18px 20px 8px;
+            text-align: center;
+            flex-shrink: 0;
+        }
+        .footer p {
+            color: rgba(255,255,255,0.07);
+            font-size: 8px;
+            font-weight: 600;
+            letter-spacing: 0.6px;
+            text-transform: uppercase;
+            line-height: 1.6;
+        }
+        .footer .hl { color: rgba(255,255,255,0.05); letter-spacing: 0.2px; text-transform: none; }
+
+        .home-bar {
+            height: 34px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+        .home-bar div {
+            width: 134px; height: 5px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 999px;
+        }
+
+        @keyframes fU { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes pIn { 0% { transform: scale(0); opacity: 0; } 70% { transform: scale(1.08); } 100% { transform: scale(1); opacity: 1; } }
+        .af { animation: fU 0.5s ease-out forwards; }
+        .ap { animation: pIn 0.5s cubic-bezier(0.34,1.56,0.64,1) forwards; }
+        .d1 { animation-delay: 0.05s; opacity: 0; }
+        .d2 { animation-delay: 0.15s; opacity: 0; }
+        .d3 { animation-delay: 0.25s; opacity: 0; }
+        .d4 { animation-delay: 0.35s; opacity: 0; }
+        .d5 { animation-delay: 0.45s; opacity: 0; }
+    </style>
+</head>
+<body>
+<div layout:fragment="content" class="phone">
+
+
+    <!-- Body -->
+    <div class="body">
+        <div class="success">
+            <div class="circle ap"><i class="fas fa-check"></i></div>
+            <h2 class="af d2">Đặt Vé Thành Công!</h2>
+            <p class="af d2">Chi tiết vé điện tử đã được xác nhận</p>
+        </div>
+
+        <div class="card af d3">
+            <div class="card-inner">
+                <div class="poster">
+                    <img th:src="${showtime.movie.posterUrl}"
+                         src="/uploads/8039f5ff-3fb2-45a3-8f60-4b2ca3983f30_doraemon-utopia-1_1684121820088.jpg"
+                         th:alt="${showtime.movie.title}">
+                </div>
+                <div class="details">
+                    <div class="heading">
+                        <i class="far fa-lightbulb"></i>
+                        Thông tin vé của tôi:
+                    </div>
+
+                    <div class="row">
+                        <div class="ico"><i class="fas fa-hashtag"></i></div>
+                        <div>
+                            <div class="lbl">Mã đặt vé</div>
+                            <div class="val mono" th:text="${'#' + booking.id}">#3</div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="ico"><i class="fas fa-film"></i></div>
+                        <div>
+                            <div class="lbl">Phim</div>
+                            <div class="val mtitle" th:text="${showtime.movie.title}">Doraemon: Nobita và vùng đất lý tưởng trên bầu trời (2023)</div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="ico"><i class="far fa-calendar-alt"></i></div>
+                        <div>
+                            <div class="lbl">Suất chiếu</div>
+                            <div class="val" th:text="${#temporals.format(showtime.startTime, 'HH:mm, dd/MM/yyyy')}">22:10, 10/05/2028</div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="ico"><i class="fas fa-couch"></i></div>
+                        <div>
+                            <div class="lbl">Số ghế</div>
+                            <div class="seat-group">
+                                <span th:each="ticket : ${tickets}" class="seat-chip" th:text="${ticket.seat.seatNumber}">D1</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="ico"><i class="fas fa-credit-card"></i></div>
+                        <div>
+                            <div class="lbl">Phương thức thanh toán</div>
+                            <span class="pay-chip"><i class="fas fa-wallet"></i> Momo</span>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="ico"><i class="fas fa-wallet"></i></div>
+                        <div>
+                            <div class="lbl">Giá vé tổng</div>
+                            <div class="val price" th:text="${#numbers.formatDecimal(booking.totalAmount, 0, 'COMMA', 0, 'POINT') + ' VND'}">180.000 VND</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="btns af d4">
+            <a th:href="@{/booking/ticket/{id}(id=${booking.id})}" class="btn-p"><i class="fas fa-ticket-alt"></i> Xem vé điện tử</a>
+            <a th:href="@{/customer/home}" class="btn-s"><i class="fas fa-home"></i> Quay về trang chủ</a>
+        </div>
+    </div>
+
+    <div class="footer af d5">
+        <p>Smart Cinema &copy; 2026</p>
+        <p>Hệ thống Smart Cinema System v1.0.4</p>
+        <p class="hl">Hotline: 1900 1234 &bull; support@smartcinema.vn</p>
+    </div>
+
+    <div class="home-bar"><div></div></div>
+</div>
+</body>
+</html>

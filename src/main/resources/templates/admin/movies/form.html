@@ -1,0 +1,79 @@
+﻿<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="vi">
+<!--@elvariable id="movie" type="com.example.smart_cinema_booking_system.model.Movie"-->
+<head th:replace="~{layout/header :: header}">
+    <title th:text="${movie.id == null ? 'Them phim' : 'Sua phim'}"></title>
+</head>
+<body class="bg-[#121212]">
+    <div class="flex">
+        <aside th:replace="~{layout/sidebar :: sidebar}"></aside>
+
+        <div id="main-content-container" class="flex-1 flex flex-col min-w-0">
+            <header th:replace="~{layout/navbar_admin :: navbar}"></header>
+
+            <main class="flex-1 p-8 animate-fade-in flex justify-center items-start pt-20">
+                <div class="w-full max-w-lg">
+                    <div class="mb-8 text-center">
+                        <h1 class="text-3xl font-bold text-white tracking-tight" th:text="${movie.id == null ? 'Them phim moi' : 'Cap nhat phim'}"></h1>
+                        <p class="text-white mt-2">Dien thong tin ben duoi de luu vao he thong.</p>
+                    </div>
+
+                    <div class="card-cinema p-8 shadow-2xl">
+                        <form th:action="@{/admin/movies/save}" th:object="${movie}" method="post" enctype="multipart/form-data" class="space-y-6">
+                            <input type="hidden" th:field="*{id}">
+                            <input type="hidden" th:field="*{posterUrl}">
+
+                            <div>
+                                <label class="block text-xs font-bold text-white uppercase tracking-widest mb-2 ml-1" for="title">Ten phim *</label>
+                                <input type="text" th:field="*{title}" id="title"
+                                       class="w-full bg-white bg-opacity-5 border border-white border-opacity-10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-cinema-red focus:ring-1 focus:ring-cinema-red transition-all placeholder-gray-600"
+                                       placeholder="Nhap ten phim" required>
+                            </div>
+
+                            <div>
+                                <label class="block text-xs font-bold text-white uppercase tracking-widest mb-2 ml-1" for="description">Mo ta</label>
+                                <textarea th:field="*{description}" id="description"
+                                          class="w-full bg-white bg-opacity-5 border border-white border-opacity-10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-cinema-red focus:ring-1 focus:ring-cinema-red transition-all placeholder-gray-600"
+                                          rows="4" placeholder="Nhap mo ta phim"></textarea>
+                            </div>
+
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-xs font-bold text-white uppercase tracking-widest mb-2 ml-1" for="duration">Thoi luong (phut) *</label>
+                                    <input type="number" th:field="*{duration}" id="duration"
+                                           class="w-full bg-white bg-opacity-5 border border-white border-opacity-10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-cinema-red focus:ring-1 focus:ring-cinema-red transition-all"
+                                           min="1" required>
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-bold text-white uppercase tracking-widest mb-2 ml-1" for="releaseDate">Ngay phat hanh *</label>
+                                    <input type="date" th:field="*{releaseDate}" id="releaseDate"
+                                           class="w-full bg-white bg-opacity-5 border border-white border-opacity-10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-cinema-red focus:ring-1 focus:ring-cinema-red transition-all"
+                                           required>
+                                </div>
+                            </div>
+
+                            <div>
+                                <label class="block text-xs font-bold text-white uppercase tracking-widest mb-2 ml-1" for="posterFile">Poster</label>
+                                <input type="file" name="file" id="posterFile"
+                                       class="w-full bg-white bg-opacity-5 border border-white border-opacity-10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-cinema-red focus:ring-1 focus:ring-cinema-red transition-all file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-cinema-red file:text-white hover:file:bg-red-700">
+                                <p class="text-xs text-white mt-1">De trong neu khong muon thay doi anh</p>
+                            </div>
+
+                            <div class="pt-4 flex gap-4">
+                                <button type="submit" class="flex-1 px-6 py-3 bg-cinema-red text-white text-sm font-bold rounded-xl hover:shadow-[0_0_20px_rgba(229,9,20,0.4)] transition-all">
+                                    <i class="fas fa-save mr-2"></i> Luu phim
+                                </button>
+                                <a th:href="@{/admin/movies}" class="px-6 py-3 bg-white bg-opacity-5 text-white text-sm font-bold rounded-xl hover:bg-opacity-10 transition-all">
+                                    Huy bo
+                                </a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </main>
+
+            <footer th:replace="~{layout/footer :: footer}"></footer>
+        </div>
+    </div>
+</body>
+</html>

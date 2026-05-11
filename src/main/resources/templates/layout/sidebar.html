@@ -1,0 +1,266 @@
+﻿<!-- Fragment Sidebar Navigation -->
+<aside th:fragment="sidebar" xmlns:th="http://www.thymeleaf.org" class="sidebar">
+    <!-- Logo & Branding -->
+    <div class="sidebar-header">
+        <div class="logo-container">
+            <i class="fas fa-film text-cinema-red"></i>
+            <span class="brand-name">Smart Cinema</span>
+        </div>
+    </div>
+
+    <!-- Navigation Menu -->
+    <nav class="sidebar-nav">
+        <ul class="nav-menu">
+            <!-- Dashboard -->
+            <li class="nav-item">
+                <a href="/admin/home" class="nav-link active">
+                    <i class="fas fa-home nav-icon"></i>
+                    <span class="nav-text">Dashboard</span>
+                </a>
+            </li>
+
+            <!-- Quản lý phim -->
+            <li class="nav-item">
+                <a href="/admin/movies" class="nav-link">
+                    <i class="fas fa-video nav-icon"></i>
+                    <span class="nav-text">Quản lý phim</span>
+                </a>
+            </li>
+
+            <!-- Quản lý suất chiếu -->
+            <li class="nav-item">
+                <a href="/admin/showtimes" class="nav-link">
+                    <i class="fas fa-clock nav-icon"></i>
+                    <span class="nav-text">Quản lý suất chiếu</span>
+                </a>
+            </li>
+
+            <!-- Quản lý vé -->
+            <li class="nav-item">
+                <a href="/admin/tickets" class="nav-link">
+                    <i class="fas fa-ticket-alt nav-icon"></i>
+                    <span class="nav-text">Quản lý vé</span>
+                </a>
+            </li>
+
+            <!-- Thống kê -->
+            <li class="nav-item">
+                <a href="/admin/statistics" class="nav-link">
+                    <i class="fas fa-chart-bar nav-icon"></i>
+                    <span class="nav-text">Thống kê</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+
+    <!-- Sidebar Footer (User Info) -->
+    <div class="sidebar-footer">
+        <div class="user-info">
+            <i class="fas fa-user-circle user-avatar"></i>
+            <div class="user-details">
+                <!-- Giải pháp: Kiểm tra user trong session một cách an toàn -->
+                <p class="user-name" 
+                   th:if="${session.loggedInUser}" 
+                   th:text="${session.loggedInUser.userName}">
+                    Admin
+                </p>
+                <p class="user-name" th:unless="${session.loggedInUser}">Admin</p>
+                <small class="user-role">Quản trị viên</small>
+            </div>
+        </div>
+    </div>
+
+    <!-- Custom CSS cho Sidebar -->
+    <style>
+        /* ============== SIDEBAR STYLING ============== */
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: 260px;
+            height: 100vh;
+            background-color: #2a2a2a;
+            border-right: 1px solid #404040;
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+            z-index: 1000;
+            padding-top: 20px;
+        }
+
+        /* Logo Section */
+        .sidebar-header {
+            padding: 20px 15px;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #404040;
+        }
+
+        .logo-container {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 24px;
+            font-weight: 700;
+        }
+
+        .logo-container i {
+            font-size: 28px;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        .brand-name {
+            color: #ffffff;
+            background: linear-gradient(135deg, #E50914, #ff1a24);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        /* Navigation Menu */
+        .sidebar-nav {
+            flex: 1;
+            overflow-y: auto;
+            padding: 0;
+            margin: 0;
+        }
+
+        .nav-menu {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .nav-item {
+            margin: 0;
+            border-left: 3px solid transparent;
+            transition: all 0.3s ease;
+        }
+
+        .nav-item:hover {
+            border-left-color: #E50914;
+            background-color: rgba(229, 9, 20, 0.05);
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 15px 20px;
+            color: #ffffff;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .nav-link:hover,
+        .nav-link.active {
+            color: #E50914;
+            padding-left: 25px;
+        }
+
+        .nav-icon {
+            font-size: 18px;
+            width: 20px;
+            text-align: center;
+        }
+
+        .nav-text {
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        /* Sidebar Footer */
+        .sidebar-footer {
+            padding: 15px;
+            border-top: 1px solid #404040;
+            margin-top: auto;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px;
+            background-color: rgba(229, 9, 20, 0.1);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .user-info:hover {
+            background-color: rgba(229, 9, 20, 0.15);
+        }
+
+        .user-avatar {
+            font-size: 24px;
+            color: #E50914;
+        }
+
+        .user-details {
+            flex: 1;
+            overflow: hidden;
+        }
+
+        .user-name {
+            margin: 0;
+            font-size: 12px;
+            font-weight: 600;
+            color: #ffffff;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .user-role {
+            display: block;
+            font-size: 11px;
+            color: #E50914;
+            margin-top: 2px;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 70px;
+                padding-top: 10px;
+            }
+
+            .sidebar-header {
+                padding: 15px;
+                text-align: center;
+            }
+
+            .brand-name {
+                display: none;
+            }
+
+            .nav-text,
+            .user-details {
+                display: none;
+            }
+
+            .nav-link {
+                justify-content: center;
+                padding: 12px;
+            }
+
+            .user-info {
+                justify-content: center;
+                gap: 0;
+            }
+
+            .user-avatar {
+                font-size: 28px;
+            }
+
+            .logo-container {
+                justify-content: center;
+                gap: 0;
+            }
+        }
+    </style>
+</aside>

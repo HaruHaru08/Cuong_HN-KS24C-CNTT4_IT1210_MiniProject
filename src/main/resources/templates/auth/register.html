@@ -1,0 +1,216 @@
+﻿<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đăng ký | Smart Cinema System</title>
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <!-- Bootstrap 5 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- FontAwesome 6 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Animate.css -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+
+    <style>
+        :root {
+            --cinema-red: #E50914;
+            --deep-charcoal: #121212;
+            --glass-bg: rgba(255, 255, 255, 0.1);
+            --neon-glow: rgba(229, 9, 20, 0.4);
+        }
+
+        body, html {
+            height: 100%;
+            margin: 0;
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--deep-charcoal);
+            overflow-x: hidden;
+        }
+
+        /* Background Image with Overlay */
+        .bg-register {
+            background-image: linear-gradient(rgba(0, 0, 0, 0.75), rgba(0, 0, 0, 0.75)),
+            url('https://images.unsplash.com/photo-1517604401157-538a9663ec02?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 50px 0;
+        }
+
+        /* Glassmorphism Card - Wider for Register */
+        .register-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 25px;
+            padding: 45px;
+            width: 100%;
+            max-width: 600px; /* Rộng hơn trang Login */
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.6);
+        }
+
+        .register-header h2 {
+            color: #fff;
+            font-weight: 600;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        /* Form Styling */
+        .input-group-text {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: #ffffff;
+            border-radius: 12px 0 0 12px;
+            width: 45px;
+            justify-content: center;
+        }
+
+        .form-control {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: #fff;
+            border-radius: 0 12px 12px 0;
+            padding: 12px 15px;
+            transition: all 0.3s ease;
+        }
+
+        .form-control:focus {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: var(--cinema-red);
+            box-shadow: 0 0 10px var(--neon-glow);
+            color: #fff;
+        }
+
+        .form-control::placeholder {
+            color: #ffffff;
+            font-size: 0.9rem;
+        }
+
+        /* Checkbox Styling */
+        .form-check-input:checked {
+            background-color: var(--cinema-red);
+            border-color: var(--cinema-red);
+        }
+
+        .form-check-label {
+            color: #ffffff;
+            font-size: 0.85rem;
+        }
+
+        /* Button Styling */
+        .btn-register {
+            background-color: var(--cinema-red);
+            border: none;
+            border-radius: 12px;
+            padding: 14px;
+            font-weight: 600;
+            color: white;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-top: 10px;
+        }
+
+        .btn-register:hover {
+            background-color: #b20710;
+            transform: scale(1.03);
+            box-shadow: 0 5px 20px rgba(229, 9, 20, 0.4);
+        }
+
+        .login-link {
+            color: #fff;
+            text-decoration: none;
+            font-weight: 500;
+            transition: 0.3s;
+        }
+
+        .login-link:hover {
+            color: var(--cinema-red);
+        }
+    </style>
+</head>
+<body>
+
+<div class="bg-register">
+    <div class="register-card animate__animated animate__zoomIn">
+        <div class="register-header text-center mb-4">
+            <h2 class="mb-2"><i class="fas fa-ticket-alt text-danger me-2"></i> Đăng Ký</h2>
+            <p class="text-white">Tạo tài khoản để nhận nhiều ưu đãi xem phim</p>
+        </div>
+
+        <!-- Form liên kết với Object từ Backend (ví dụ UserDTO) -->
+         <form th:action="@{/auth/register}" th:object="${user}" method="post">
+
+            <div class="row">
+                <!-- Full Name -->
+                <div class="col-md-12 mb-3">
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="fas fa-id-card"></i></span>
+                        <input type="text" th:field="*{fullName}" class="form-control" placeholder="Họ và tên" required>
+                    </div>
+                </div>
+
+                <!-- Email -->
+                <div class="col-md-12 mb-3">
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="fas fa-envelope"></i></span>
+                        <input type="email" th:field="*{email}" class="form-control" placeholder="Địa chỉ Email" required>
+                    </div>
+                </div>
+
+                <!-- Username -->
+                <div class="col-md-12 mb-3">
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="fas fa-user"></i></span>
+                        <input type="text" th:field="*{userName}" class="form-control" placeholder="Tên đăng nhập" required>
+                    </div>
+                </div>
+
+                <!-- Password -->
+                <div class="col-md-6 mb-3">
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="fas fa-lock"></i></span>
+                        <input type="password" th:field="*{password}" class="form-control" placeholder="Mật khẩu" required>
+                    </div>
+                </div>
+
+                <!-- Confirm Password -->
+                <div class="col-md-6 mb-3">
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="fas fa-shield-alt"></i></span>
+                        <input type="password" name="confirmPassword" class="form-control" placeholder="Xác nhận mật khẩu" required>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Terms and Conditions -->
+            <div class="form-check mb-4 mt-2">
+                <input class="form-check-input" type="checkbox" id="terms" required>
+                <label class="form-check-label" for="terms">
+                    Tôi đồng ý với các <a href="#" class="text-danger text-decoration-none">Điều khoản & Chính sách</a> của rạp phim
+                </label>
+            </div>
+
+            <button type="submit" class="btn btn-register w-100">Đăng Ký Ngay</button>
+
+            <div class="text-center mt-4">
+                 <p class="text-white small">Bạn đã có tài khoản?
+                     <a th:href="@{/auth/login}" class="login-link">Đăng nhập tại đây</a>
+                 </p>
+             </div>
+        </form>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

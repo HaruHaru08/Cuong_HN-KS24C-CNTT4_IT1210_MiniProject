@@ -1,0 +1,782 @@
+> Task :compileJava UP-TO-DATE
+> Task :processResources UP-TO-DATE
+> Task :classes UP-TO-DATE
+> Task :resolveMainClassName UP-TO-DATE
+
+> Task :bootRun
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::                (v3.4.1)
+
+2026-05-11T09:54:35.372+07:00  INFO 5396 --- [Smart_Cinema_Booking_System] [  restartedMain] .e.s.SmartCinemaBookingSystemApplication : Starting SmartCinemaBookingSystemApplication using Java 17.0.12 with PID 5396 (D:\Smart_Cinema_Booking_System\build\classes\java\main started by ACER in D:\Smart_Cinema_Booking_System)
+2026-05-11T09:54:35.376+07:00  INFO 5396 --- [Smart_Cinema_Booking_System] [  restartedMain] .e.s.SmartCinemaBookingSystemApplication : No active profile set, falling back to 1 default profile: "default"
+2026-05-11T09:54:35.416+07:00  INFO 5396 --- [Smart_Cinema_Booking_System] [  restartedMain] .e.DevToolsPropertyDefaultsPostProcessor : Devtools property defaults active! Set 'spring.devtools.add-properties' to 'false' to disable
+2026-05-11T09:54:35.416+07:00  INFO 5396 --- [Smart_Cinema_Booking_System] [  restartedMain] .e.DevToolsPropertyDefaultsPostProcessor : For additional web related logging consider setting the 'logging.level.web' property to 'DEBUG'
+2026-05-11T09:54:36.070+07:00  INFO 5396 --- [Smart_Cinema_Booking_System] [  restartedMain] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-05-11T09:54:36.154+07:00  INFO 5396 --- [Smart_Cinema_Booking_System] [  restartedMain] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 75 ms. Found 9 JPA repository interfaces.
+2026-05-11T09:54:36.703+07:00  INFO 5396 --- [Smart_Cinema_Booking_System] [  restartedMain] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 8080 (http)
+2026-05-11T09:54:36.713+07:00  INFO 5396 --- [Smart_Cinema_Booking_System] [  restartedMain] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2026-05-11T09:54:36.713+07:00  INFO 5396 --- [Smart_Cinema_Booking_System] [  restartedMain] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.34]
+2026-05-11T09:54:36.760+07:00  INFO 5396 --- [Smart_Cinema_Booking_System] [  restartedMain] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+2026-05-11T09:54:36.762+07:00  INFO 5396 --- [Smart_Cinema_Booking_System] [  restartedMain] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 1344 ms
+2026-05-11T09:54:36.885+07:00  INFO 5396 --- [Smart_Cinema_Booking_System] [  restartedMain] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
+2026-05-11T09:54:36.925+07:00  INFO 5396 --- [Smart_Cinema_Booking_System] [  restartedMain] org.hibernate.Version                    : HHH000412: Hibernate ORM core version 6.6.4.Final
+2026-05-11T09:54:36.950+07:00  INFO 5396 --- [Smart_Cinema_Booking_System] [  restartedMain] o.h.c.internal.RegionFactoryInitiator    : HHH000026: Second-level cache disabled
+2026-05-11T09:54:37.161+07:00  INFO 5396 --- [Smart_Cinema_Booking_System] [  restartedMain] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-05-11T09:54:37.192+07:00  INFO 5396 --- [Smart_Cinema_Booking_System] [  restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2026-05-11T09:54:37.435+07:00  INFO 5396 --- [Smart_Cinema_Booking_System] [  restartedMain] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection com.mysql.cj.jdbc.ConnectionImpl@7d2fae4
+2026-05-11T09:54:37.437+07:00  INFO 5396 --- [Smart_Cinema_Booking_System] [  restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2026-05-11T09:54:37.480+07:00  WARN 5396 --- [Smart_Cinema_Booking_System] [  restartedMain] org.hibernate.orm.deprecation            : HHH90000025: MySQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2026-05-11T09:54:37.502+07:00  INFO 5396 --- [Smart_Cinema_Booking_System] [  restartedMain] org.hibernate.orm.connections.pooling    : HHH10001005: Database info:
+	Database JDBC URL [Connecting through datasource 'HikariDataSource (HikariPool-1)']
+	Database driver: undefined/unknown
+	Database version: 8.0.44
+	Autocommit mode: undefined/unknown
+	Isolation level: undefined/unknown
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+2026-05-11T09:54:39.938+07:00  INFO 5396 --- [Smart_Cinema_Booking_System] [  restartedMain] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2026-05-11T09:54:40.140+07:00  INFO 5396 --- [Smart_Cinema_Booking_System] [  restartedMain] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-05-11T09:54:40.988+07:00  INFO 5396 --- [Smart_Cinema_Booking_System] [  restartedMain] o.s.d.j.r.query.QueryEnhancerFactory     : Hibernate is in classpath; If applicable, HQL parser will be used.
+2026-05-11T09:54:43.980+07:00  WARN 5396 --- [Smart_Cinema_Booking_System] [  restartedMain] JpaBaseConfiguration$JpaWebConfiguration : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2026-05-11T09:54:45.218+07:00  INFO 5396 --- [Smart_Cinema_Booking_System] [  restartedMain] o.s.b.d.a.OptionalLiveReloadServer       : LiveReload server is running on port 35729
+2026-05-11T09:54:45.285+07:00  INFO 5396 --- [Smart_Cinema_Booking_System] [  restartedMain] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port 8080 (http) with context path '/'
+2026-05-11T09:54:45.327+07:00  INFO 5396 --- [Smart_Cinema_Booking_System] [  restartedMain] .e.s.SmartCinemaBookingSystemApplication : Started SmartCinemaBookingSystemApplication in 10.334 seconds (process running for 10.728)
+Hibernate: 
+    select
+        u1_0.id,
+        u1_0.avatar_url,
+        u1_0.created_at,
+        u1_0.email,
+        u1_0.full_name,
+        u1_0.password,
+        u1_0.role,
+        u1_0.status,
+        u1_0.user_name 
+    from
+        users u1_0 
+    where
+        u1_0.user_name=?
+Hibernate: 
+    select
+        u1_0.id,
+        u1_0.avatar_url,
+        u1_0.created_at,
+        u1_0.email,
+        u1_0.full_name,
+        u1_0.password,
+        u1_0.role,
+        u1_0.status,
+        u1_0.user_name 
+    from
+        users u1_0 
+    where
+        u1_0.id=?
+Hibernate: 
+    update
+        users 
+    set
+        avatar_url=?,
+        created_at=?,
+        email=?,
+        full_name=?,
+        password=?,
+        role=?,
+        status=?,
+        user_name=? 
+    where
+        id=?
+Hibernate: 
+    select
+        u1_0.id,
+        u1_0.avatar_url,
+        u1_0.created_at,
+        u1_0.email,
+        u1_0.full_name,
+        u1_0.password,
+        u1_0.role,
+        u1_0.status,
+        u1_0.user_name 
+    from
+        users u1_0 
+    where
+        u1_0.user_name=?
+Hibernate: 
+    select
+        u1_0.id,
+        u1_0.avatar_url,
+        u1_0.created_at,
+        u1_0.email,
+        u1_0.full_name,
+        u1_0.password,
+        u1_0.role,
+        u1_0.status,
+        u1_0.user_name 
+    from
+        users u1_0 
+    where
+        u1_0.id=?
+Hibernate: 
+    update
+        users 
+    set
+        avatar_url=?,
+        created_at=?,
+        email=?,
+        full_name=?,
+        password=?,
+        role=?,
+        status=?,
+        user_name=? 
+    where
+        id=?
+Hibernate: 
+    select
+        u1_0.id,
+        u1_0.avatar_url,
+        u1_0.created_at,
+        u1_0.email,
+        u1_0.full_name,
+        u1_0.password,
+        u1_0.role,
+        u1_0.status,
+        u1_0.user_name 
+    from
+        users u1_0 
+    where
+        u1_0.user_name=?
+Hibernate: 
+    select
+        u1_0.id,
+        u1_0.avatar_url,
+        u1_0.created_at,
+        u1_0.email,
+        u1_0.full_name,
+        u1_0.password,
+        u1_0.role,
+        u1_0.status,
+        u1_0.user_name 
+    from
+        users u1_0 
+    where
+        u1_0.id=?
+Hibernate: 
+    update
+        users 
+    set
+        avatar_url=?,
+        created_at=?,
+        email=?,
+        full_name=?,
+        password=?,
+        role=?,
+        status=?,
+        user_name=? 
+    where
+        id=?
+2026-05-11T09:54:46.363+07:00  INFO 5396 --- [Smart_Cinema_Booking_System] [  restartedMain] c.e.s.config.DataInitializer             : >>> DataInitializer: Sample users updated
+Hibernate: 
+    select
+        r1_0.id,
+        r1_0.name,
+        r1_0.total_seats 
+    from
+        rooms r1_0
+Hibernate: 
+    select
+        r1_0.id,
+        r1_0.name,
+        r1_0.total_seats 
+    from
+        rooms r1_0 
+    where
+        r1_0.id=?
+Hibernate: 
+    select
+        r1_0.id,
+        r1_0.name,
+        r1_0.total_seats 
+    from
+        rooms r1_0
+Hibernate: 
+    select
+        r1_0.id,
+        r1_0.name,
+        r1_0.total_seats 
+    from
+        rooms r1_0 
+    where
+        r1_0.id=?
+Hibernate: 
+    select
+        r1_0.id,
+        r1_0.name,
+        r1_0.total_seats 
+    from
+        rooms r1_0
+Hibernate: 
+    select
+        r1_0.id,
+        r1_0.name,
+        r1_0.total_seats 
+    from
+        rooms r1_0 
+    where
+        r1_0.id=?
+Hibernate: 
+    select
+        r1_0.id,
+        r1_0.name,
+        r1_0.total_seats 
+    from
+        rooms r1_0
+Hibernate: 
+    select
+        r1_0.id,
+        r1_0.name,
+        r1_0.total_seats 
+    from
+        rooms r1_0 
+    where
+        r1_0.id=?
+Hibernate: 
+    select
+        r1_0.id,
+        r1_0.name,
+        r1_0.total_seats 
+    from
+        rooms r1_0
+Hibernate: 
+    select
+        r1_0.id,
+        r1_0.name,
+        r1_0.total_seats 
+    from
+        rooms r1_0 
+    where
+        r1_0.id=?
+2026-05-11T09:54:46.451+07:00  INFO 5396 --- [Smart_Cinema_Booking_System] [  restartedMain] c.e.s.config.DataInitializer             : >>> DataInitializer: Hoàn t?t ??ng b? 5 phòng chi?u
+Hibernate: 
+    select
+        stc1_0.id,
+        stc1_0.surcharge,
+        stc1_0.type_name 
+    from
+        seat_type_config stc1_0 
+    where
+        stc1_0.type_name=?
+2026-05-11T09:54:46.459+07:00  INFO 5396 --- [Smart_Cinema_Booking_System] [  restartedMain] c.e.s.service.SeatService                : >>> Lo?i gh? 'normal' ?ã t?n t?i
+Hibernate: 
+    select
+        stc1_0.id,
+        stc1_0.surcharge,
+        stc1_0.type_name 
+    from
+        seat_type_config stc1_0 
+    where
+        stc1_0.type_name=?
+2026-05-11T09:54:46.464+07:00  INFO 5396 --- [Smart_Cinema_Booking_System] [  restartedMain] c.e.s.service.SeatService                : >>> Lo?i gh? 'vip' ?ã t?n t?i
+Hibernate: 
+    select
+        stc1_0.id,
+        stc1_0.surcharge,
+        stc1_0.type_name 
+    from
+        seat_type_config stc1_0 
+    where
+        stc1_0.type_name=?
+2026-05-11T09:54:46.468+07:00  INFO 5396 --- [Smart_Cinema_Booking_System] [  restartedMain] c.e.s.service.SeatService                : >>> Lo?i gh? 'sweetbox' ?ã t?n t?i
+2026-05-11T09:54:46.468+07:00  INFO 5396 --- [Smart_Cinema_Booking_System] [  restartedMain] c.e.s.service.SeatService                : >>> ?ã kh?i t?o các lo?i gh?: normal (0?), vip (+30,000?), sweetbox (+60,000?)
+Hibernate: 
+    select
+        r1_0.id,
+        r1_0.name,
+        r1_0.total_seats 
+    from
+        rooms r1_0
+2026-05-11T09:54:46.475+07:00  INFO 5396 --- [Smart_Cinema_Booking_System] [  restartedMain] c.e.s.service.SeatService                : >>> B?t ??u t?o gh? cho 8 phòng...
+Hibernate: 
+    select
+        count(s1_0.id) 
+    from
+        seats s1_0 
+    left join
+        rooms r1_0 
+            on r1_0.id=s1_0.room_id 
+    where
+        r1_0.id=?
+2026-05-11T09:54:46.490+07:00  INFO 5396 --- [Smart_Cinema_Booking_System] [  restartedMain] c.e.s.service.SeatService                : >>> Phòng Phòng 01 - IMAX (ID=1) ?ã có 100 gh?, b? qua
+Hibernate: 
+    select
+        count(s1_0.id) 
+    from
+        seats s1_0 
+    left join
+        rooms r1_0 
+            on r1_0.id=s1_0.room_id 
+    where
+        r1_0.id=?
+2026-05-11T09:54:46.495+07:00  INFO 5396 --- [Smart_Cinema_Booking_System] [  restartedMain] c.e.s.service.SeatService                : >>> Phòng Phòng 02 - Standard (ID=2) ?ã có 80 gh?, b? qua
+Hibernate: 
+    select
+        count(s1_0.id) 
+    from
+        seats s1_0 
+    left join
+        rooms r1_0 
+            on r1_0.id=s1_0.room_id 
+    where
+        r1_0.id=?
+2026-05-11T09:54:46.500+07:00  INFO 5396 --- [Smart_Cinema_Booking_System] [  restartedMain] c.e.s.service.SeatService                : >>> Phòng Phòng 03 - VIP (ID=3) ?ã có 30 gh?, b? qua
+Hibernate: 
+    select
+        count(s1_0.id) 
+    from
+        seats s1_0 
+    left join
+        rooms r1_0 
+            on r1_0.id=s1_0.room_id 
+    where
+        r1_0.id=?
+2026-05-11T09:54:46.505+07:00  INFO 5396 --- [Smart_Cinema_Booking_System] [  restartedMain] c.e.s.service.SeatService                : >>> Phòng Phòng A - Standard (ID=4) ?ã có 200 gh?, b? qua
+Hibernate: 
+    select
+        count(s1_0.id) 
+    from
+        seats s1_0 
+    left join
+        rooms r1_0 
+            on r1_0.id=s1_0.room_id 
+    where
+        r1_0.id=?
+2026-05-11T09:54:46.508+07:00  INFO 5396 --- [Smart_Cinema_Booking_System] [  restartedMain] c.e.s.service.SeatService                : >>> Phòng Phòng B - Standard (ID=5) ?ã có 250 gh?, b? qua
+Hibernate: 
+    select
+        count(s1_0.id) 
+    from
+        seats s1_0 
+    left join
+        rooms r1_0 
+            on r1_0.id=s1_0.room_id 
+    where
+        r1_0.id=?
+2026-05-11T09:54:46.514+07:00  INFO 5396 --- [Smart_Cinema_Booking_System] [  restartedMain] c.e.s.service.SeatService                : >>> Phòng Phòng C - Mini (ID=6) ?ã có 80 gh?, b? qua
+Hibernate: 
+    select
+        count(s1_0.id) 
+    from
+        seats s1_0 
+    left join
+        rooms r1_0 
+            on r1_0.id=s1_0.room_id 
+    where
+        r1_0.id=?
+2026-05-11T09:54:46.519+07:00  INFO 5396 --- [Smart_Cinema_Booking_System] [  restartedMain] c.e.s.service.SeatService                : >>> Phòng Phòng D - IMAX (ID=7) ?ã có 450 gh?, b? qua
+Hibernate: 
+    select
+        count(s1_0.id) 
+    from
+        seats s1_0 
+    left join
+        rooms r1_0 
+            on r1_0.id=s1_0.room_id 
+    where
+        r1_0.id=?
+2026-05-11T09:54:46.524+07:00  INFO 5396 --- [Smart_Cinema_Booking_System] [  restartedMain] c.e.s.service.SeatService                : >>> Phòng Phòng E - VIP (ID=8) ?ã có 30 gh?, b? qua
+2026-05-11T09:54:46.524+07:00  INFO 5396 --- [Smart_Cinema_Booking_System] [  restartedMain] c.e.s.service.SeatService                : >>> Hoàn t?t t?o gh? cho t?t c? phòng!
+2026-05-11T10:10:17.168+07:00  WARN 5396 --- [Smart_Cinema_Booking_System] [l-1 housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Thread starvation or clock leap detected (housekeeper delta=3m39s201ms822µs).
+2026-05-11T10:35:32.160+07:00  INFO 5396 --- [Smart_Cinema_Booking_System] [   File Watcher] rtingClassPathChangeChangedEventListener : Restarting due to 37 class path changes (0 additions, 0 deletions, 37 modifications)
+2026-05-11T10:35:32.177+07:00  INFO 5396 --- [Smart_Cinema_Booking_System] [       Thread-5] o.s.b.w.e.tomcat.GracefulShutdown        : Commencing graceful shutdown. Waiting for active requests to complete
+2026-05-11T10:35:33.034+07:00  INFO 5396 --- [Smart_Cinema_Booking_System] [tomcat-shutdown] o.s.b.w.e.tomcat.GracefulShutdown        : Graceful shutdown complete
+2026-05-11T10:35:33.055+07:00  INFO 5396 --- [Smart_Cinema_Booking_System] [       Thread-5] j.LocalContainerEntityManagerFactoryBean : Closing JPA EntityManagerFactory for persistence unit 'default'
+2026-05-11T10:35:33.071+07:00  INFO 5396 --- [Smart_Cinema_Booking_System] [       Thread-5] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown initiated...
+2026-05-11T10:35:33.096+07:00  INFO 5396 --- [Smart_Cinema_Booking_System] [       Thread-5] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown completed.
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::                (v3.4.1)
+
+2026-05-11T10:35:33.361+07:00  INFO 5396 --- [Smart_Cinema_Booking_System] [  restartedMain] .e.s.SmartCinemaBookingSystemApplication : Starting SmartCinemaBookingSystemApplication using Java 17.0.12 with PID 5396 (D:\Smart_Cinema_Booking_System\build\classes\java\main started by ACER in D:\Smart_Cinema_Booking_System)
+2026-05-11T10:35:33.361+07:00  INFO 5396 --- [Smart_Cinema_Booking_System] [  restartedMain] .e.s.SmartCinemaBookingSystemApplication : No active profile set, falling back to 1 default profile: "default"
+2026-05-11T10:35:34.175+07:00  INFO 5396 --- [Smart_Cinema_Booking_System] [  restartedMain] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-05-11T10:35:34.283+07:00  INFO 5396 --- [Smart_Cinema_Booking_System] [  restartedMain] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 103 ms. Found 9 JPA repository interfaces.
+2026-05-11T10:35:34.720+07:00  INFO 5396 --- [Smart_Cinema_Booking_System] [  restartedMain] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 8080 (http)
+2026-05-11T10:35:34.722+07:00  INFO 5396 --- [Smart_Cinema_Booking_System] [  restartedMain] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2026-05-11T10:35:34.723+07:00  INFO 5396 --- [Smart_Cinema_Booking_System] [  restartedMain] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.34]
+2026-05-11T10:35:34.794+07:00  INFO 5396 --- [Smart_Cinema_Booking_System] [  restartedMain] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+2026-05-11T10:35:34.795+07:00  INFO 5396 --- [Smart_Cinema_Booking_System] [  restartedMain] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 1425 ms
+2026-05-11T10:35:34.935+07:00  INFO 5396 --- [Smart_Cinema_Booking_System] [  restartedMain] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
+2026-05-11T10:35:34.947+07:00  INFO 5396 --- [Smart_Cinema_Booking_System] [  restartedMain] o.h.c.internal.RegionFactoryInitiator    : HHH000026: Second-level cache disabled
+2026-05-11T10:35:34.992+07:00  INFO 5396 --- [Smart_Cinema_Booking_System] [  restartedMain] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-05-11T10:35:34.996+07:00  INFO 5396 --- [Smart_Cinema_Booking_System] [  restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-2 - Starting...
+2026-05-11T10:35:35.034+07:00  INFO 5396 --- [Smart_Cinema_Booking_System] [  restartedMain] com.zaxxer.hikari.pool.HikariPool        : HikariPool-2 - Added connection com.mysql.cj.jdbc.ConnectionImpl@3df4b673
+2026-05-11T10:35:35.035+07:00  INFO 5396 --- [Smart_Cinema_Booking_System] [  restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-2 - Start completed.
+2026-05-11T10:35:35.039+07:00  WARN 5396 --- [Smart_Cinema_Booking_System] [  restartedMain] org.hibernate.orm.deprecation            : HHH90000025: MySQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2026-05-11T10:35:35.041+07:00  INFO 5396 --- [Smart_Cinema_Booking_System] [  restartedMain] org.hibernate.orm.connections.pooling    : HHH10001005: Database info:
+	Database JDBC URL [Connecting through datasource 'HikariDataSource (HikariPool-2)']
+	Database driver: undefined/unknown
+	Database version: 8.0.44
+	Autocommit mode: undefined/unknown
+	Isolation level: undefined/unknown
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+2026-05-11T10:35:35.637+07:00  INFO 5396 --- [Smart_Cinema_Booking_System] [  restartedMain] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2026-05-11T10:35:35.758+07:00  INFO 5396 --- [Smart_Cinema_Booking_System] [  restartedMain] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-05-11T10:35:36.501+07:00  WARN 5396 --- [Smart_Cinema_Booking_System] [  restartedMain] JpaBaseConfiguration$JpaWebConfiguration : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2026-05-11T10:35:36.988+07:00  INFO 5396 --- [Smart_Cinema_Booking_System] [  restartedMain] o.s.b.d.a.OptionalLiveReloadServer       : LiveReload server is running on port 35729
+2026-05-11T10:35:37.047+07:00  INFO 5396 --- [Smart_Cinema_Booking_System] [  restartedMain] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port 8080 (http) with context path '/'
+2026-05-11T10:35:37.060+07:00  INFO 5396 --- [Smart_Cinema_Booking_System] [  restartedMain] .e.s.SmartCinemaBookingSystemApplication : Started SmartCinemaBookingSystemApplication in 3.794 seconds (process running for 2462.651)
+Hibernate: 
+    select
+        u1_0.id,
+        u1_0.avatar_url,
+        u1_0.created_at,
+        u1_0.email,
+        u1_0.full_name,
+        u1_0.password,
+        u1_0.role,
+        u1_0.status,
+        u1_0.user_name 
+    from
+        users u1_0 
+    where
+        u1_0.user_name=?
+Hibernate: 
+    select
+        u1_0.id,
+        u1_0.avatar_url,
+        u1_0.created_at,
+        u1_0.email,
+        u1_0.full_name,
+        u1_0.password,
+        u1_0.role,
+        u1_0.status,
+        u1_0.user_name 
+    from
+        users u1_0 
+    where
+        u1_0.id=?
+Hibernate: 
+    update
+        users 
+    set
+        avatar_url=?,
+        created_at=?,
+        email=?,
+        full_name=?,
+        password=?,
+        role=?,
+        status=?,
+        user_name=? 
+    where
+        id=?
+Hibernate: 
+    select
+        u1_0.id,
+        u1_0.avatar_url,
+        u1_0.created_at,
+        u1_0.email,
+        u1_0.full_name,
+        u1_0.password,
+        u1_0.role,
+        u1_0.status,
+        u1_0.user_name 
+    from
+        users u1_0 
+    where
+        u1_0.user_name=?
+Hibernate: 
+    select
+        u1_0.id,
+        u1_0.avatar_url,
+        u1_0.created_at,
+        u1_0.email,
+        u1_0.full_name,
+        u1_0.password,
+        u1_0.role,
+        u1_0.status,
+        u1_0.user_name 
+    from
+        users u1_0 
+    where
+        u1_0.id=?
+Hibernate: 
+    update
+        users 
+    set
+        avatar_url=?,
+        created_at=?,
+        email=?,
+        full_name=?,
+        password=?,
+        role=?,
+        status=?,
+        user_name=? 
+    where
+        id=?
+Hibernate: 
+    select
+        u1_0.id,
+        u1_0.avatar_url,
+        u1_0.created_at,
+        u1_0.email,
+        u1_0.full_name,
+        u1_0.password,
+        u1_0.role,
+        u1_0.status,
+        u1_0.user_name 
+    from
+        users u1_0 
+    where
+        u1_0.user_name=?
+Hibernate: 
+    select
+        u1_0.id,
+        u1_0.avatar_url,
+        u1_0.created_at,
+        u1_0.email,
+        u1_0.full_name,
+        u1_0.password,
+        u1_0.role,
+        u1_0.status,
+        u1_0.user_name 
+    from
+        users u1_0 
+    where
+        u1_0.id=?
+Hibernate: 
+    update
+        users 
+    set
+        avatar_url=?,
+        created_at=?,
+        email=?,
+        full_name=?,
+        password=?,
+        role=?,
+        status=?,
+        user_name=? 
+    where
+        id=?
+2026-05-11T10:35:38.021+07:00  INFO 5396 --- [Smart_Cinema_Booking_System] [  restartedMain] c.e.s.config.DataInitializer             : >>> DataInitializer: Sample users updated
+Hibernate: 
+    select
+        r1_0.id,
+        r1_0.name,
+        r1_0.total_seats 
+    from
+        rooms r1_0
+Hibernate: 
+    select
+        r1_0.id,
+        r1_0.name,
+        r1_0.total_seats 
+    from
+        rooms r1_0 
+    where
+        r1_0.id=?
+Hibernate: 
+    select
+        r1_0.id,
+        r1_0.name,
+        r1_0.total_seats 
+    from
+        rooms r1_0
+Hibernate: 
+    select
+        r1_0.id,
+        r1_0.name,
+        r1_0.total_seats 
+    from
+        rooms r1_0 
+    where
+        r1_0.id=?
+Hibernate: 
+    select
+        r1_0.id,
+        r1_0.name,
+        r1_0.total_seats 
+    from
+        rooms r1_0
+Hibernate: 
+    select
+        r1_0.id,
+        r1_0.name,
+        r1_0.total_seats 
+    from
+        rooms r1_0 
+    where
+        r1_0.id=?
+Hibernate: 
+    select
+        r1_0.id,
+        r1_0.name,
+        r1_0.total_seats 
+    from
+        rooms r1_0
+Hibernate: 
+    select
+        r1_0.id,
+        r1_0.name,
+        r1_0.total_seats 
+    from
+        rooms r1_0 
+    where
+        r1_0.id=?
+Hibernate: 
+    select
+        r1_0.id,
+        r1_0.name,
+        r1_0.total_seats 
+    from
+        rooms r1_0
+Hibernate: 
+    select
+        r1_0.id,
+        r1_0.name,
+        r1_0.total_seats 
+    from
+        rooms r1_0 
+    where
+        r1_0.id=?
+2026-05-11T10:35:38.190+07:00  INFO 5396 --- [Smart_Cinema_Booking_System] [  restartedMain] c.e.s.config.DataInitializer             : >>> DataInitializer: Hoàn t?t ??ng b? 5 phòng chi?u
+Hibernate: 
+    select
+        stc1_0.id,
+        stc1_0.surcharge,
+        stc1_0.type_name 
+    from
+        seat_type_config stc1_0 
+    where
+        stc1_0.type_name=?
+2026-05-11T10:35:38.208+07:00  INFO 5396 --- [Smart_Cinema_Booking_System] [  restartedMain] c.e.s.service.SeatService                : >>> Lo?i gh? 'normal' ?ã t?n t?i
+Hibernate: 
+    select
+        stc1_0.id,
+        stc1_0.surcharge,
+        stc1_0.type_name 
+    from
+        seat_type_config stc1_0 
+    where
+        stc1_0.type_name=?
+2026-05-11T10:35:38.219+07:00  INFO 5396 --- [Smart_Cinema_Booking_System] [  restartedMain] c.e.s.service.SeatService                : >>> Lo?i gh? 'vip' ?ã t?n t?i
+Hibernate: 
+    select
+        stc1_0.id,
+        stc1_0.surcharge,
+        stc1_0.type_name 
+    from
+        seat_type_config stc1_0 
+    where
+        stc1_0.type_name=?
+2026-05-11T10:35:38.234+07:00  INFO 5396 --- [Smart_Cinema_Booking_System] [  restartedMain] c.e.s.service.SeatService                : >>> Lo?i gh? 'sweetbox' ?ã t?n t?i
+2026-05-11T10:35:38.235+07:00  INFO 5396 --- [Smart_Cinema_Booking_System] [  restartedMain] c.e.s.service.SeatService                : >>> ?ã kh?i t?o các lo?i gh?: normal (0?), vip (+30,000?), sweetbox (+60,000?)
+Hibernate: 
+    select
+        r1_0.id,
+        r1_0.name,
+        r1_0.total_seats 
+    from
+        rooms r1_0
+2026-05-11T10:35:38.249+07:00  INFO 5396 --- [Smart_Cinema_Booking_System] [  restartedMain] c.e.s.service.SeatService                : >>> B?t ??u t?o gh? cho 8 phòng...
+Hibernate: 
+    select
+        count(s1_0.id) 
+    from
+        seats s1_0 
+    left join
+        rooms r1_0 
+            on r1_0.id=s1_0.room_id 
+    where
+        r1_0.id=?
+2026-05-11T10:35:38.272+07:00  INFO 5396 --- [Smart_Cinema_Booking_System] [  restartedMain] c.e.s.service.SeatService                : >>> Phòng Phòng 01 - IMAX (ID=1) ?ã có 100 gh?, b? qua
+Hibernate: 
+    select
+        count(s1_0.id) 
+    from
+        seats s1_0 
+    left join
+        rooms r1_0 
+            on r1_0.id=s1_0.room_id 
+    where
+        r1_0.id=?
+2026-05-11T10:35:38.333+07:00  INFO 5396 --- [Smart_Cinema_Booking_System] [  restartedMain] c.e.s.service.SeatService                : >>> Phòng Phòng 02 - Standard (ID=2) ?ã có 80 gh?, b? qua
+Hibernate: 
+    select
+        count(s1_0.id) 
+    from
+        seats s1_0 
+    left join
+        rooms r1_0 
+            on r1_0.id=s1_0.room_id 
+    where
+        r1_0.id=?
+2026-05-11T10:35:38.364+07:00  INFO 5396 --- [Smart_Cinema_Booking_System] [  restartedMain] c.e.s.service.SeatService                : >>> Phòng Phòng 03 - VIP (ID=3) ?ã có 30 gh?, b? qua
+Hibernate: 
+    select
+        count(s1_0.id) 
+    from
+        seats s1_0 
+    left join
+        rooms r1_0 
+            on r1_0.id=s1_0.room_id 
+    where
+        r1_0.id=?
+2026-05-11T10:35:38.412+07:00  INFO 5396 --- [Smart_Cinema_Booking_System] [  restartedMain] c.e.s.service.SeatService                : >>> Phòng Phòng A - Standard (ID=4) ?ã có 200 gh?, b? qua
+Hibernate: 
+    select
+        count(s1_0.id) 
+    from
+        seats s1_0 
+    left join
+        rooms r1_0 
+            on r1_0.id=s1_0.room_id 
+    where
+        r1_0.id=?
+2026-05-11T10:35:38.428+07:00  INFO 5396 --- [Smart_Cinema_Booking_System] [  restartedMain] c.e.s.service.SeatService                : >>> Phòng Phòng B - Standard (ID=5) ?ã có 250 gh?, b? qua
+Hibernate: 
+    select
+        count(s1_0.id) 
+    from
+        seats s1_0 
+    left join
+        rooms r1_0 
+            on r1_0.id=s1_0.room_id 
+    where
+        r1_0.id=?
+2026-05-11T10:35:38.442+07:00  INFO 5396 --- [Smart_Cinema_Booking_System] [  restartedMain] c.e.s.service.SeatService                : >>> Phòng Phòng C - Mini (ID=6) ?ã có 80 gh?, b? qua
+Hibernate: 
+    select
+        count(s1_0.id) 
+    from
+        seats s1_0 
+    left join
+        rooms r1_0 
+            on r1_0.id=s1_0.room_id 
+    where
+        r1_0.id=?
+2026-05-11T10:35:38.481+07:00  INFO 5396 --- [Smart_Cinema_Booking_System] [  restartedMain] c.e.s.service.SeatService                : >>> Phòng Phòng D - IMAX (ID=7) ?ã có 450 gh?, b? qua
+Hibernate: 
+    select
+        count(s1_0.id) 
+    from
+        seats s1_0 
+    left join
+        rooms r1_0 
+            on r1_0.id=s1_0.room_id 
+    where
+        r1_0.id=?
+2026-05-11T10:35:38.502+07:00  INFO 5396 --- [Smart_Cinema_Booking_System] [  restartedMain] c.e.s.service.SeatService                : >>> Phòng Phòng E - VIP (ID=8) ?ã có 30 gh?, b? qua
+2026-05-11T10:35:38.503+07:00  INFO 5396 --- [Smart_Cinema_Booking_System] [  restartedMain] c.e.s.service.SeatService                : >>> Hoàn t?t t?o gh? cho t?t c? phòng!
+2026-05-11T10:35:38.560+07:00  INFO 5396 --- [Smart_Cinema_Booking_System] [  restartedMain] .ConditionEvaluationDeltaLoggingListener : Condition evaluation unchanged

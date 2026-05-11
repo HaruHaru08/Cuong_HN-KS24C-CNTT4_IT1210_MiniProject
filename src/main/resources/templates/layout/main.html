@@ -1,0 +1,340 @@
+﻿<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title layout:title-pattern="$LAYOUT_TITLE - $CONTENT_TITLE">Smart Cinema</title>
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <!-- Bootstrap 5 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome 6 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Flatpickr (DateTime Picker) -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <!-- Showtime Custom CSS -->
+    <link rel="stylesheet" href="/css/showtime.css">
+
+    <style>
+        :root {
+            --cinema-red: #E50914;
+            --deep-charcoal: #121212;
+            --glass-bg: rgba(255, 255, 255, 0.1);
+            --zinc-950: #09090b;
+            --red-600: #dc2626;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--zinc-950);
+            color: #fff;
+            min-height: 100vh;
+        }
+
+        .navbar-brand {
+            color: var(--cinema-red) !important;
+            font-weight: 600;
+        }
+
+        .btn-logout {
+            background-color: var(--cinema-red);
+            border: none;
+            border-radius: 8px;
+            padding: 8px 16px;
+            transition: all 0.3s ease;
+        }
+
+        .btn-logout:hover {
+            background-color: #b20710;
+            transform: translateY(-1px);
+        }
+
+        .content-wrapper {
+            min-height: calc(100vh - 76px);
+            padding: 20px 0;
+        }
+
+        /* Glassmorphism */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 16px;
+        }
+
+        .glass-input {
+            background: rgba(255, 255, 255, 0.1) !important;
+            border: 1px solid rgba(255, 255, 255, 0.2) !important;
+            color: white !important;
+            border-radius: 8px;
+        }
+
+        .glass-input::placeholder {
+            color: rgba(255, 255, 255, 0.5) !important;
+        }
+
+        .glass-input:focus {
+            background: rgba(255, 255, 255, 0.15) !important;
+            border-color: var(--red-600) !important;
+            box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.1) !important;
+        }
+
+        /* Shake Animation */
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+            20%, 40%, 60%, 80% { transform: translateX(5px); }
+        }
+
+        .shake {
+            animation: shake 0.5s ease-in-out;
+        }
+
+        /* Timeline Classes */
+        .timeline-slot {
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 10px;
+            margin: 5px 0;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .timeline-occupied {
+            background: linear-gradient(135deg, rgba(220, 38, 38, 0.3) 0%, rgba(220, 38, 38, 0.1) 100%);
+            border: 1px solid rgba(220, 38, 38, 0.5);
+        }
+
+        .timeline-free {
+            background: linear-gradient(135deg, rgba(34, 197, 94, 0.3) 0%, rgba(34, 197, 94, 0.1) 100%);
+            border: 1px solid rgba(34, 197, 94, 0.5);
+        }
+
+        /* Calendar Grid */
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        .room-column {
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            overflow: hidden;
+            background: rgba(0, 0, 0, 0.3);
+        }
+
+        .error-shake {
+            animation: shake 0.5s ease-in-out;
+            color: var(--red-600);
+        }
+
+        /* Tailwind Extensions */
+        .text-highlight {
+            color: var(--red-600);
+            font-weight: 600;
+        }
+
+        /* Select Dropdown Styling */
+        select.glass-input {
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='white' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 8px center;
+            padding-right: 30px;
+        }
+
+        /* Flatpickr Custom Styling */
+        .flatpickr-calendar {
+            background: var(--zinc-950) !important;
+            border: 1px solid rgba(255, 255, 255, 0.2) !important;
+            border-radius: 12px !important;
+        }
+
+        .flatpickr-day.selected {
+            background: var(--red-600) !important;
+            border-color: var(--red-600) !important;
+        }
+
+        .flatpickr-day:hover {
+            background: rgba(220, 38, 38, 0.3) !important;
+        }
+
+        .flatpickr-months {
+            background: var(--zinc-950) !important;
+        }
+
+        .flatpickr-current-month {
+            color: white !important;
+        }
+
+        .flatpickr-weekdays {
+            background: var(--zinc-950) !important;
+            color: rgba(255, 255, 255, 0.7) !important;
+        }
+
+        .flatpickr-prev, .flatpickr-next {
+            fill: rgba(255, 255, 255, 0.5) !important;
+        }
+
+        .flatpickr-prev:hover, .flatpickr-next:hover {
+            fill: white !important;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand" href="#">
+                <i class="fas fa-film me-2"></i>SMART CINEMA
+            </a>
+
+            <div class="d-flex align-items-center gap-3">
+                <!-- User dropdown (logged in) -->
+                <div class="position-relative" th:if="${loggedInUser != null}" id="userGroupMain" style="z-index:9999;">
+                    <button id="avatarBtnMain"
+                            class="d-flex align-items-center gap-2 px-3 py-1.5 rounded-3 border-0 transition-all"
+                            style="background:transparent;border:1px solid rgba(255,255,255,0.06) !important;cursor:pointer;"
+                            onmouseover="this.style.background='rgba(255,255,255,0.05)'"
+                            onmouseout="this.style.background='transparent'">
+                        <span class="d-flex align-items-center justify-content-center rounded-circle flex-shrink-0"
+                              style="width:32px;height:32px;background:linear-gradient(135deg,#E50914,#B20710);color:#fff;font-weight:700;font-size:13px;">
+                            <span th:text="${#strings.substring(loggedInUser.fullName != null ? loggedInUser.fullName : loggedInUser.userName, 0, 1)}">U</span>
+                        </span>
+                        <span class="d-none d-sm-inline text-white" style="font-size:14px;font-weight:500;max-width:100px;" class="text-truncate"
+                              th:text="${loggedInUser.fullName != null ? loggedInUser.fullName : loggedInUser.userName}">User</span>
+                        <i class="fas fa-chevron-down text-white" id="userChevronMain" style="font-size:10px;transition:transform 0.2s;"></i>
+                    </button>
+                    <div id="userPanelMain"
+                         class="position-absolute end-0 mt-2"
+                         style="opacity:0;pointer-events:none;transform:translateY(-4px) scale(0.95);transition:all 0.2s;width:220px;background:#1a1d23;border:1px solid rgba(255,255,255,0.08);border-radius:14px;padding:6px;box-shadow:0 25px 60px rgba(0,0,0,0.5);backdrop-filter:blur(20px);">
+                        <div class="px-3 py-3 border-bottom" style="border-color:rgba(255,255,255,0.05) !important;">
+                            <p class="mb-0 text-white" style="font-size:14px;font-weight:600;" th:text="${loggedInUser.fullName != null ? loggedInUser.fullName : loggedInUser.userName}">User</p>
+                            <p class="mb-0" style="font-size:12px;color:rgba(255,255,255,0.4);">
+                                <span th:if="${loggedInUser.role.name() == 'CUSTOMER'}">Khách hàng</span>
+                                <span th:if="${loggedInUser.role.name() == 'ADMIN'}">Quản trị viên</span>
+                                <span th:if="${loggedInUser.role.name() == 'STAFF'}">Nhân viên</span>
+                            </p>
+                        </div>
+                        <a th:href="@{/profile}"
+                           class="d-flex align-items-center gap-3 px-3 py-2 rounded-3 text-decoration-none transition-all"
+                           style="font-size:14px;color:rgba(255,255,255,0.6);"
+                           onmouseover="this.style.background='rgba(255,255,255,0.05)';this.style.color='#fff'"
+                           onmouseout="this.style.background='transparent';this.style.color='rgba(255,255,255,0.6)'">
+                            <span class="d-flex align-items-center justify-content-center rounded-3 flex-shrink-0" style="width:28px;height:28px;background:rgba(229,9,20,0.1);">
+                                <i class="fas fa-user" style="color:#E50914;font-size:11px;"></i>
+                            </span>
+                            Hồ sơ cá nhân
+                        </a>
+                        <a th:if="${loggedInUser.role.name() == 'CUSTOMER'}"
+                           th:href="@{/booking/my-bookings}"
+                           class="d-flex align-items-center gap-3 px-3 py-2 rounded-3 text-decoration-none transition-all"
+                           style="font-size:14px;color:rgba(255,255,255,0.6);"
+                           onmouseover="this.style.background='rgba(255,255,255,0.05)';this.style.color='#fff'"
+                           onmouseout="this.style.background='transparent';this.style.color='rgba(255,255,255,0.6)'">
+                            <span class="d-flex align-items-center justify-content-center rounded-3 flex-shrink-0" style="width:28px;height:28px;background:rgba(229,9,20,0.1);">
+                                <i class="fas fa-ticket-alt" style="color:#E50914;font-size:11px;"></i>
+                            </span>
+                            Lịch sử đặt vé
+                        </a>
+                        <a th:if="${loggedInUser.role.name() == 'ADMIN'}"
+                           th:href="@{/admin/movies}"
+                           class="d-flex align-items-center gap-3 px-3 py-2 rounded-3 text-decoration-none transition-all"
+                           style="font-size:14px;color:rgba(255,255,255,0.6);"
+                           onmouseover="this.style.background='rgba(255,255,255,0.05)';this.style.color='#fff'"
+                           onmouseout="this.style.background='transparent';this.style.color='rgba(255,255,255,0.6)'">
+                            <span class="d-flex align-items-center justify-content-center rounded-3 flex-shrink-0" style="width:28px;height:28px;background:rgba(229,9,20,0.1);">
+                                <i class="fas fa-film" style="color:#E50914;font-size:11px;"></i>
+                            </span>
+                            Quản lý phim
+                        </a>
+                        <a th:if="${loggedInUser.role.name() == 'STAFF'}"
+                           th:href="@{/staff/home}"
+                           class="d-flex align-items-center gap-3 px-3 py-2 rounded-3 text-decoration-none transition-all"
+                           style="font-size:14px;color:rgba(255,255,255,0.6);"
+                           onmouseover="this.style.background='rgba(255,255,255,0.05)';this.style.color='#fff'"
+                           onmouseout="this.style.background='transparent';this.style.color='rgba(255,255,255,0.6)'">
+                            <span class="d-flex align-items-center justify-content-center rounded-3 flex-shrink-0" style="width:28px;height:28px;background:rgba(229,9,20,0.1);">
+                                <i class="fas fa-home" style="color:#E50914;font-size:11px;"></i>
+                            </span>
+                            Trang chủ
+                        </a>
+                        <div class="border-top my-1" style="border-color:rgba(255,255,255,0.05) !important;"></div>
+                        <a th:href="@{/auth/logout}"
+                           class="d-flex align-items-center gap-3 px-3 py-2 rounded-3 text-decoration-none transition-all"
+                           style="font-size:14px;color:#f87171 !important;"
+                           onmouseover="this.style.background='rgba(239,68,68,0.1)'"
+                           onmouseout="this.style.background='transparent'">
+                            <span class="d-flex align-items-center justify-content-center rounded-3 flex-shrink-0" style="width:28px;height:28px;background:rgba(239,68,68,0.1);">
+                                <i class="fas fa-sign-out-alt" style="color:#f87171;font-size:11px;"></i>
+                            </span>
+                            Đăng xuất
+                        </a>
+                    </div>
+                </div>
+                <a href="/auth/login" class="btn btn-logout btn-sm" th:if="${loggedInUser == null}">
+                    <i class="fas fa-sign-in-alt me-1"></i>Đăng nhập
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="content-wrapper">
+        <div class="container">
+            <div layout:fragment="content">
+                <!-- Default content goes here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-dark text-center py-3 mt-5">
+        <div class="container">
+            <p class="mb-0">&copy; 2024 Smart Cinema Booking System. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Flatpickr JS -->
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <!-- Flatpickr Vietnamese localization -->
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/vn.js"></script>
+
+    <script>
+    (function() {
+        var btn = document.getElementById('avatarBtnMain');
+        var panel = document.getElementById('userPanelMain');
+        var chevron = document.getElementById('userChevronMain');
+        var group = document.getElementById('userGroupMain');
+        var open = false;
+
+        if (btn) {
+            btn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                open = !open;
+                panel.style.opacity = open ? '1' : '0';
+                panel.style.pointerEvents = open ? 'auto' : 'none';
+                panel.style.transform = open ? 'translateY(0) scale(1)' : 'translateY(-4px) scale(0.95)';
+                if (chevron) chevron.style.transform = open ? 'rotate(180deg)' : 'rotate(0deg)';
+            });
+        }
+
+        document.addEventListener('click', function(e) {
+            if (open && group && !group.contains(e.target)) {
+                open = false;
+                panel.style.opacity = '0';
+                panel.style.pointerEvents = 'none';
+                panel.style.transform = 'translateY(-4px) scale(0.95)';
+                if (chevron) chevron.style.transform = 'rotate(0deg)';
+            }
+        });
+    })();
+    </script>
+
+</body>
+</html>

@@ -1,0 +1,139 @@
+﻿<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout/header :: header}">
+    <title>Lịch sử đặt vé | Cinema Pro</title>
+</head>
+<body class="bg-[#0f0f0f] text-white">
+    <nav th:replace="~{layout/navbar_customer :: navbar}"></nav>
+
+    <main class="container mx-auto px-4 pt-24 pb-20 max-w-5xl">
+        <div class="mb-10 text-center animate-fade-in">
+            <h1 class="text-4xl font-bold text-white mb-2 font-poppins tracking-tight">Lịch sử <span class="text-cinema-red">Đặt vé</span></h1>
+            <p class="text-white">Quản lý và theo dõi các hành trình điện ảnh của bạn</p>
+        </div>
+
+        <!-- Ticket Stubs List -->
+        <div class="space-y-8">
+            <!-- Loop qua history (Object[]: 0:id, 1:title, 2:poster, 3:startTime, 4:room, 5:seats, 6:price, 7:date, 8:status) -->
+            <div th:each="item : ${history}" class="relative flex flex-col md:flex-row h-auto md:h-52 w-full bg-[#1a1a1a] rounded-3xl overflow-hidden border border-zinc-800 shadow-2xl hover:border-zinc-700 transition-all duration-300 animate-fade-in">
+
+                <!-- Left Section (Poster & Basic Info) -->
+                <div class="relative flex-1 p-6 flex flex-col justify-between overflow-hidden">
+                    <!-- Background Poster Blur -->
+                    <img th:src="${item[2]}" class="absolute inset-0 w-full h-full object-cover opacity-10 blur-sm -z-0" alt="background">
+
+                    <div class="relative z-10">
+                        <div class="flex items-center gap-4 mb-3">
+                            <span th:if="${item[8].toString() == 'PAID'}" class="px-2 py-0.5 bg-green-500 bg-opacity-20 text-green-500 text-[10px] font-bold rounded-md uppercase tracking-wider">Đã Thanh Toán</span>
+                            <span th:if="${item[8].toString() == 'CANCELLED'}" class="px-2 py-0.5 bg-red-500 bg-opacity-20 text-red-500 text-[10px] font-bold rounded-md uppercase tracking-wider">Đã Hủy</span>
+                        </div>
+                        <h2 class="text-2xl font-bold text-white line-clamp-1 mb-1" th:text="${item[1]}">Movie Title</h2>
+                        <p class="text-sm text-white font-medium italic" th:text="${item[4]}">Room Name</p>
+                    </div>
+
+                    <div class="relative z-10 flex gap-10 mt-4">
+                        <div>
+                            <p class="text-[10px] text-white uppercase font-black tracking-widest mb-1">Thời gian</p>
+                            <p class="text-sm font-bold text-white" th:text="${#dates.format(item[3], 'dd/MM/yyyy HH:mm')}">Time</p>
+                        </div>
+                        <div>
+                            <p class="text-[10px] text-white uppercase font-black tracking-widest mb-1">Ghế ngồi</p>
+                            <p class="text-sm font-bold text-cinema-red" th:text="${item[5]}">A1, A2</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Perforated Line (The Sawtooth edge) -->
+                <div class="hidden md:flex flex-col justify-around py-4 -mx-1">
+                    <div th:each="i : ${#numbers.sequence(1, 10)}" class="w-2 h-2 rounded-full bg-[#0f0f0f]"></div>
+                </div>
+
+                <!-- Right Section (Price & Actions) -->
+                <div class="w-full md:w-64 bg-[#222] p-8 flex flex-col items-center justify-center border-l md:border-l-2 md:border-dashed border-zinc-800 text-center">
+                    <p class="text-[10px] text-white uppercase tracking-tighter mb-1">Tổng tiền</p>
+                    <p class="text-2xl font-black text-white mb-6" th:text="${#numbers.formatDecimal(item[6], 0, 'COMMA', 0, 'POINT') + 'đ'}">0 VND</p>
+
+                    <div class="flex flex-col w-full gap-3">
+                        <a th:href="@{/bookings/detail/{id}(id=${item[0]})}" class="w-full py-2.5 bg-white bg-opacity-5 hover:bg-opacity-10 text-white text-xs font-bold rounded-xl transition-all border border-white border-opacity-10">
+                            <i class="fas fa-search-plus mr-2"></i> Chi Tiết
+                        </a>
+
+                        <!-- Cancel Button: chỉ hiện nếu chưa hủy -->
+                        <button th:if="${item[8].toString() == 'PAID'}"
+                                th:onclick="'confirmCancel(' + ${item[0]} + ')'"
+                                class="w-full py-2 bg-red-600 bg-opacity-10 hover:bg-opacity-20 text-red-500 text-[10px] font-bold rounded-xl transition-all border border-red-500 border-opacity-10">
+                            <i class="fas fa-times mr-1"></i> Hủy Vé
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Empty State -->
+            <div th:if="${#lists.isEmpty(history)}" class="text-center py-20 bg-[#1a1a1a] rounded-3xl border border-dashed border-zinc-800">
+                <i class="fas fa-ticket-alt text-6xl text-white mb-6 block"></i>
+                <p class="text-white">Bạn chưa có lịch sử đặt vé nào.</p>
+                <a th:href="@{/}" class="inline-block mt-6 text-cinema-red font-bold hover:underline">Khám phá phim ngay <i class="fas fa-arrow-right ml-2"></i></a>
+            </div>
+        </div>
+    </main>
+
+    <footer th:replace="~{layout/footer :: footer}"></footer>
+
+    <!-- SweetAlert2 for Cancel Action -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        function confirmCancel(id) {
+            Swal.fire({
+                title: 'Hủy vé phim?',
+                text: "Tiền vé sẽ được hoàn trả vào ví của bạn trong vòng 3-5 ngày làm việc theo quy định.",
+                icon: 'warning',
+                showCancelButton: true,
+                background: '#1a1a1a',
+                color: '#fff',
+                confirmButtonColor: '#E50914',
+                cancelButtonColor: '#333',
+                confirmButtonText: 'Xác nhận hủy',
+                cancelButtonText: 'Quay lại'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    fetch('/bookings/cancel/' + id, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        }
+                    }).then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            Swal.fire({
+                                title: 'Đã hủy!',
+                                text: data.message,
+                                icon: 'success',
+                                background: '#1a1a1a',
+                                color: '#fff',
+                                timer: 1500,
+                                showConfirmButton: false
+                            }).then(() => window.location.href = '/bookings/history');
+                        } else {
+                            Swal.fire({
+                                title: 'Lỗi!',
+                                text: data.message || 'Không thể hủy vé',
+                                icon: 'error',
+                                background: '#1a1a1a',
+                                color: '#fff'
+                            });
+                        }
+                    }).catch(function() {
+                        Swal.fire({
+                            title: 'Lỗi!',
+                            text: 'Không thể kết nối đến máy chủ',
+                            icon: 'error',
+                            background: '#1a1a1a',
+                            color: '#fff'
+                        });
+                    });
+                }
+            })
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,328 @@
+﻿<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+</head>
+<body>
+
+<nav th:fragment="navbar"
+     id="cinemaNav"
+     class="fixed top-0 left-0 right-0 z-50 transition-all duration-500"
+     style="font-family:'Inter',sans-serif;">
+
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 transition-all duration-300"
+         id="navContent"
+         style="padding-top:16px;padding-bottom:16px;">
+
+        <div class="flex items-center justify-between">
+
+            <!-- Brand -->
+            <a th:href="@{/customer/home}"
+               class="flex items-center gap-2.5 flex-shrink-0 group">
+                <span class="w-9 h-9 rounded-xl flex items-center justify-center"
+                      style="background:linear-gradient(135deg,#E50914,#B20710);">
+                    <i class="fas fa-film text-white text-sm"></i>
+                </span>
+                <span class="text-lg font-extrabold tracking-tight hidden sm:block">
+                    <span style="color:#fff;">SMART</span>
+                    <span style="color:#E50914;">CINEMA</span>
+                </span>
+            </a>
+
+            <!-- Nav links (desktop) -->
+            <div class="hidden lg:flex items-center" style="gap:32px;">
+                <a th:href="@{/customer/home}"
+                   class="nav-link-item text-sm font-medium transition-colors duration-200 text-white hover:text-white"
+                   data-nav="home">
+                    <span class="relative">
+                        Trang chủ
+                        <span class="nav-line"></span>
+                    </span>
+                </a>
+                <a th:href="@{/customer/movies}"
+                   class="nav-link-item text-sm font-medium transition-colors duration-200 text-white hover:text-white"
+                   data-nav="movies">
+                    <span class="relative">
+                        Phim đang chiếu
+                        <span class="nav-line"></span>
+                    </span>
+                </a>
+                <a th:href="@{/customer/schedule}"
+                   class="nav-link-item text-sm font-medium transition-colors duration-200 text-white hover:text-white"
+                   data-nav="schedule">
+                    <span class="relative">
+                        Lịch chiếu
+                        <span class="nav-line"></span>
+                    </span>
+                </a>
+                <a th:href="@{/customer/promotions}"
+                   class="nav-link-item text-sm font-medium transition-colors duration-200 text-white hover:text-white"
+                   data-nav="promotions">
+                    <span class="relative">
+                        Ưu đãi
+                        <span class="nav-line"></span>
+                    </span>
+                </a>
+            </div>
+
+            <!-- Right -->
+            <div class="flex items-center" style="gap:12px;">
+
+                <!-- Search -->
+                <div class="relative" id="searchGroup">
+                    <button id="searchBtn"
+                            class="w-9 h-9 rounded-lg flex items-center justify-center text-white hover:text-white hover:bg-white/5 transition-all duration-200">
+                        <i class="fas fa-search" style="font-size:14px;"></i>
+                    </button>
+                    <div id="searchPanel"
+                         class="absolute right-0 top-1/2 -translate-y-1/2 flex items-center overflow-hidden transition-all duration-300"
+                         style="width:0;opacity:0;pointer-events:none;background:rgba(24,24,27,0.95);border:1px solid rgba(255,255,255,0.08);border-radius:10px;">
+                        <input type="text" id="searchField"
+                               placeholder="Tìm phim..."
+                               style="padding:7px 12px;width:180px;background:transparent;border:none;outline:none;color:#fff;font-size:13px;font-family:'Inter',sans-serif;">
+                        <button id="searchGo"
+                                class="w-9 h-9 flex items-center justify-center text-white hover:text-white transition-colors flex-shrink-0">
+                            <i class="fas fa-arrow-right" style="font-size:12px;"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- User dropdown (logged in) -->
+                <details class="relative group" th:if="${loggedInUser != null}">
+                    <summary class="flex items-center gap-2 px-3 py-1.5 rounded-xl cursor-pointer list-none transition-all duration-200 hover:bg-white/5"
+                             style="border:1px solid rgba(255,255,255,0.06);">
+                        <span class="w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold text-white flex-shrink-0"
+                              style="background:linear-gradient(135deg,#E50914,#B20710);">
+                            <span th:text="${#strings.substring(loggedInUser.fullName != null ? loggedInUser.fullName : loggedInUser.userName, 0, 1)}">U</span>
+                        </span>
+                        <span class="hidden sm:block text-sm font-medium text-white group-hover:text-white transition-colors duration-200 max-w-[100px] truncate"
+                              th:text="${loggedInUser.fullName != null ? loggedInUser.fullName : loggedInUser.userName}">User</span>
+                        <i id="userChevron" class="fas fa-chevron-down text-[10px] text-white group-hover:text-white transition-transform duration-200"></i>
+                    </summary>
+                    <div class="absolute right-0 top-full mt-2 w-56 origin-top-right"
+                         style="background:#1a1d23;border:1px solid rgba(255,255,255,0.08);border-radius:14px;padding:6px;box-shadow:0 25px 60px rgba(0,0,0,0.5);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);z-index:9999;">
+                        <!-- User Info -->
+                        <div class="px-3 py-3 border-b border-white/5 mb-1">
+                            <p class="text-sm font-semibold text-white truncate" th:text="${loggedInUser.fullName != null ? loggedInUser.fullName : loggedInUser.userName}">User</p>
+                            <p class="text-xs text-white truncate">
+                                <span th:if="${loggedInUser.role.name() == 'CUSTOMER'}">Khách hàng thân thiết</span>
+                                <span th:if="${loggedInUser.role.name() == 'ADMIN'}">Quản trị viên</span>
+                                <span th:if="${loggedInUser.role.name() == 'STAFF'}">Nhân viên</span>
+                            </p>
+                        </div>
+                        <!-- Menu Items -->
+                        <a th:href="@{/profile}"
+                           class="flex items-center gap-3 px-3 py-2.5 text-sm text-white rounded-lg hover:bg-white/5 hover:text-white transition-all duration-150">
+                            <span class="w-7 h-7 rounded-lg flex items-center justify-center" style="background:rgba(229,9,20,0.1);">
+                                <i class="fas fa-user" style="color:#E50914;font-size:11px;"></i>
+                            </span>
+                            Hồ sơ cá nhân
+                        </a>
+                        <a th:href="@{/booking/my-bookings}"
+                           class="flex items-center gap-3 px-3 py-2.5 text-sm text-white rounded-lg hover:bg-white/5 hover:text-white transition-all duration-150">
+                            <span class="w-7 h-7 rounded-lg flex items-center justify-center" style="background:rgba(229,9,20,0.1);">
+                                <i class="fas fa-ticket-alt" style="color:#E50914;font-size:11px;"></i>
+                            </span>
+                            Lịch sử đặt vé
+                        </a>
+                        <div class="border-t border-white/5 my-1"></div>
+                        <a th:href="@{/auth/logout}"
+                           class="flex items-center gap-3 px-3 py-2.5 text-sm rounded-lg text-red-400 hover:bg-red-500/10 transition-all duration-150">
+                            <span class="w-7 h-7 rounded-lg flex items-center justify-center" style="background:rgba(239,68,68,0.1);">
+                                <i class="fas fa-sign-out-alt" style="font-size:11px;"></i>
+                            </span>
+                            Đăng xuất
+                        </a>
+                    </div>
+                </details>
+
+                <!-- Login btn (logged out) -->
+                <a th:if="${loggedInUser == null}"
+                   th:href="@{/auth/login}"
+                   class="inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold rounded-lg transition-all duration-200 hover:shadow-lg"
+                   style="border:1.5px solid rgba(229,9,20,0.5);color:#fff;">
+                    <i class="fas fa-sign-in-alt" style="font-size:12px;"></i>
+                    <span class="hidden sm:inline">Đăng nhập</span>
+                </a>
+
+                <!-- Hamburger -->
+                <button id="hamburgerBtn"
+                        class="lg:hidden w-9 h-9 rounded-lg flex items-center justify-center text-white hover:text-white hover:bg-white/5 transition-all duration-200">
+                    <i id="hamburgerIcon" class="fas fa-bars" style="font-size:16px;"></i>
+                </button>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- Mobile menu -->
+    <div id="mobilePanel"
+         class="lg:hidden overflow-hidden transition-all duration-300"
+         style="max-height:0;background:rgba(24,24,27,0.98);border-top:1px solid rgba(255,255,255,0.04);backdrop-filter:blur(20px);">
+        <div class="px-4 py-3 space-y-1">
+            <a th:href="@{/customer/home}"
+               class="mobile-nav-link block px-4 py-3 text-sm font-medium rounded-xl text-white hover:text-white hover:bg-white/5 transition-all duration-200"
+               data-nav="home">
+                <i class="fas fa-home mr-3" style="color:#E50914;width:16px;"></i>Trang chủ
+            </a>
+            <a th:href="@{/customer/movies}"
+               class="mobile-nav-link block px-4 py-3 text-sm font-medium rounded-xl text-white hover:text-white hover:bg-white/5 transition-all duration-200"
+               data-nav="movies">
+                <i class="fas fa-film mr-3" style="color:#E50914;width:16px;"></i>Phim đang chiếu
+            </a>
+            <a th:href="@{/customer/schedule}"
+               class="mobile-nav-link block px-4 py-3 text-sm font-medium rounded-xl text-white hover:text-white hover:bg-white/5 transition-all duration-200"
+               data-nav="schedule">
+                <i class="fas fa-calendar-alt mr-3" style="color:#E50914;width:16px;"></i>Lịch chiếu
+            </a>
+            <a th:href="@{/customer/promotions}"
+               class="mobile-nav-link block px-4 py-3 text-sm font-medium rounded-xl text-white hover:text-white hover:bg-white/5 transition-all duration-200"
+               data-nav="promotions">
+                <i class="fas fa-tag mr-3" style="color:#E50914;width:16px;"></i>Ưu đãi
+            </a>
+            <div class="border-t border-white/5 my-3" th:if="${loggedInUser != null}"></div>
+            <a th:if="${loggedInUser != null}"
+               th:href="@{/booking/my-bookings}"
+               class="flex items-center px-4 py-3 text-sm font-medium rounded-xl text-white hover:text-white hover:bg-white/5 transition-all duration-200">
+                <i class="fas fa-ticket-alt mr-3" style="color:#E50914;width:16px;"></i>Vé của tôi
+            </a>
+            <a th:if="${loggedInUser != null}"
+               th:href="@{/auth/logout}"
+               class="flex items-center px-4 py-3 text-sm font-medium rounded-xl text-red-400 hover:bg-red-500/10 transition-all duration-200">
+                <i class="fas fa-sign-out-alt mr-3" style="width:16px;"></i>Đăng xuất
+            </a>
+            <a th:if="${loggedInUser == null}"
+               th:href="@{/auth/login}"
+               class="flex items-center px-4 py-3 text-sm font-semibold rounded-xl"
+               style="background:rgba(229,9,20,0.1);color:#fff;">
+                <i class="fas fa-sign-in-alt mr-3" style="color:#E50914;width:16px;"></i>Đăng nhập
+            </a>
+        </div>
+    </div>
+
+    <style>
+        .nav-line {
+            position: absolute;
+            bottom: -4px;
+            left: 50%;
+            width: 0;
+            height: 2px;
+            background: #E50914;
+            border-radius: 2px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            transform: translateX(-50%);
+        }
+        .nav-link-item:hover .nav-line,
+        .nav-link-item.active .nav-line {
+            width: 100%;
+        }
+        #searchField::placeholder { color: #ffffff; }
+        #searchField:focus { outline: none; }
+
+        details summary::-webkit-details-marker { display: none; }
+        details summary::marker { display: none; }
+        details[open] #userChevron { transform: rotate(180deg); }
+    </style>
+</nav>
+
+<script>
+(function() {
+    var nav = document.getElementById('cinemaNav');
+    var content = document.getElementById('navContent');
+
+    function handleScroll() {
+        if (window.scrollY > 40) {
+            nav.style.background = 'rgba(9,9,11,0.92)';
+            nav.style.backdropFilter = 'blur(16px)';
+            nav.style.borderBottom = '1px solid rgba(255,255,255,0.04)';
+            content.style.paddingTop = '10px';
+            content.style.paddingBottom = '10px';
+        } else {
+            nav.style.background = 'transparent';
+            nav.style.backdropFilter = 'none';
+            nav.style.borderBottom = 'none';
+            content.style.paddingTop = '16px';
+            content.style.paddingBottom = '16px';
+        }
+    }
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    handleScroll();
+
+    // Active nav link highlighting
+    var path = window.location.pathname;
+    document.querySelectorAll('[data-nav]').forEach(function(el) {
+        var navKey = el.getAttribute('data-nav');
+        if (navKey === 'home' && (path === '/customer/home' || path === '/')) {
+            el.classList.add('active', 'text-white');
+        } else if (navKey === 'movies' && path.indexOf('/customer/movies') === 0) {
+            el.classList.add('active', 'text-white');
+        } else if (navKey === 'schedule' && path.indexOf('/customer/schedule') === 0) {
+            el.classList.add('active', 'text-white');
+        } else if (navKey === 'promotions' && path.indexOf('/customer/promotions') === 0) {
+            el.classList.add('active', 'text-white');
+        }
+    });
+
+    // Search toggle
+    var searchBtn = document.getElementById('searchBtn');
+    var searchPanel = document.getElementById('searchPanel');
+    var searchField = document.getElementById('searchField');
+    var searchGo = document.getElementById('searchGo');
+    var searchOpen = false;
+
+    searchBtn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        searchOpen = !searchOpen;
+        if (searchOpen) {
+            searchPanel.style.width = '220px';
+            searchPanel.style.opacity = '1';
+            searchPanel.style.pointerEvents = 'auto';
+            searchField.focus();
+        } else {
+            searchPanel.style.width = '0';
+            searchPanel.style.opacity = '0';
+            searchPanel.style.pointerEvents = 'none';
+        }
+    });
+
+    function doSearch() {
+        var q = searchField.value.trim();
+        if (q) window.location.href = '/customer/movies?search=' + encodeURIComponent(q);
+    }
+
+    searchField.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') doSearch();
+    });
+    searchGo.addEventListener('click', doSearch);
+
+    document.addEventListener('click', function(e) {
+        if (searchOpen && !document.getElementById('searchGroup').contains(e.target)) {
+            searchOpen = false;
+            searchPanel.style.width = '0';
+            searchPanel.style.opacity = '0';
+            searchPanel.style.pointerEvents = 'none';
+        }
+    });
+
+    // Mobile menu toggle
+    var hamburgerBtn = document.getElementById('hamburgerBtn');
+    var mobilePanel = document.getElementById('mobilePanel');
+    var hamburgerIcon = document.getElementById('hamburgerIcon');
+    var mobileOpen = false;
+
+    hamburgerBtn.addEventListener('click', function() {
+        mobileOpen = !mobileOpen;
+        if (mobileOpen) {
+            mobilePanel.style.maxHeight = mobilePanel.scrollHeight + 'px';
+            hamburgerIcon.className = 'fas fa-times';
+        } else {
+            mobilePanel.style.maxHeight = '0';
+            hamburgerIcon.className = 'fas fa-bars';
+        }
+    });
+})();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,90 @@
+﻿<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout/header :: header}">
+    <title>Chi tiết vé | Cinema Pro</title>
+</head>
+<body class="bg-[#0f0f0f] text-white">
+    <nav th:replace="~{layout/navbar_customer :: navbar}"></nav>
+
+    <main class="min-h-screen pt-24 pb-20 flex flex-col justify-center items-center px-4">
+        <a th:href="@{/bookings/history}"
+           class="self-start mb-4 ml-1 inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold text-white/40 hover:text-white bg-white/5 hover:bg-white/10 border border-white/10 hover:border-white/20 transition-all no-underline">
+            <i class="fas fa-arrow-left text-xs"></i>
+            Quay lại
+        </a>
+        <!-- Boarding Pass Style Ticket -->
+        <div class="w-full max-w-sm bg-[#1a1a1a] rounded-[40px] shadow-2xl border border-zinc-800 relative overflow-hidden animate-fade-in">
+
+            <!-- Glow Effect -->
+            <div class="absolute -top-24 -right-24 w-48 h-48 bg-cinema-red opacity-10 blur-[80px]"></div>
+
+            <!-- Top Section: Movie Info -->
+            <div class="p-8 text-center border-b border-dashed border-zinc-800 relative">
+                <div class="mb-4 inline-block px-3 py-1 bg-cinema-red bg-opacity-10 border border-cinema-red border-opacity-20 rounded-full">
+                    <span class="text-[10px] font-bold text-cinema-red uppercase tracking-widest">E-Ticket</span>
+                </div>
+                <h1 class="text-2xl font-black text-white mb-1 uppercase tracking-tight" th:text="${showtime?.movie?.title}">Movie Title</h1>
+                <p class="text-xs text-white font-medium">Phim chiếu rạp</p>
+
+                <div class="mt-8 grid grid-cols-2 gap-4">
+                    <div class="text-left">
+                        <p class="text-[9px] text-white uppercase font-bold tracking-tighter">Ngày chiếu</p>
+                        <p class="text-sm font-bold text-white" th:text="${#temporals.format(showtime?.startTime, 'dd/MM/yyyy')}">Date</p>
+                    </div>
+                    <div class="text-right">
+                        <p class="text-[9px] text-white uppercase font-bold tracking-tighter">Giờ chiếu</p>
+                        <p class="text-sm font-bold text-white" th:text="${#temporals.format(showtime?.startTime, 'HH:mm')}">Time</p>
+                    </div>
+                    <div class="text-left">
+                        <p class="text-[9px] text-white uppercase font-bold tracking-tighter">Phòng</p>
+                        <p class="text-sm font-bold text-white" th:text="${showtime?.room?.name}">Room</p>
+                    </div>
+                    <div class="text-right">
+                        <p class="text-[9px] text-white uppercase font-bold tracking-tighter">Số lượng</p>
+                        <p class="text-sm font-bold text-white" th:text="${tickets.size() + ' vé'}">1 vé</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Side Notches -->
+            <div class="absolute left-0 top-[52%] -ml-4 w-8 h-8 rounded-full bg-[#0f0f0f]"></div>
+            <div class="absolute right-0 top-[52%] -mr-4 w-8 h-8 rounded-full bg-[#0f0f0f]"></div>
+
+            <!-- Bottom Section: QR & Barcode -->
+            <div class="p-10 pt-12 flex flex-col items-center">
+                <div class="bg-white p-4 rounded-3xl mb-8 shadow-xl">
+                    <!-- QR Code Placeholder -->
+                    <img th:src="'https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=SMART-CINEMA-BOOKING-' + ${booking.id}"
+                         alt="QR Code" class="w-32 h-32">
+                </div>
+
+                <div class="text-center mb-8">
+                    <p class="text-[10px] text-white uppercase font-bold mb-2">Ghế ngồi của bạn</p>
+                    <div class="flex flex-wrap justify-center gap-2">
+                        <span th:each="t : ${tickets}" class="px-3 py-1 bg-white bg-opacity-5 rounded-lg text-sm font-black text-cinema-red border border-white border-opacity-10" th:text="${t.seat.seatNumber}">A1</span>
+                    </div>
+                </div>
+
+                <!-- Barcode Image -->
+                <div class="w-full h-12 bg-white rounded-md flex items-center justify-center p-2 mb-2">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/e9/UPC-A-barcode.svg/1200px-UPC-A-barcode.svg.png"
+                         class="h-full w-full object-contain opacity-80" alt="Barcode">
+                </div>
+                <p class="text-[9px] font-mono text-white tracking-[8px]" th:text="'ID-' + ${booking.id} + '-CINEMA'">BOOKING-ID</p>
+            </div>
+
+            <!-- Action Footer -->
+            <div class="bg-[#222] p-6 text-center">
+                <p class="text-[10px] text-white uppercase mb-1">Tổng tiền thanh toán</p>
+                <p class="text-xl font-black text-white" th:text="${#numbers.formatDecimal(booking.totalAmount, 0, 'COMMA', 0, 'POINT') + 'đ'}">0 VND</p>
+
+                <button onclick="window.print()" class="mt-6 w-full py-3 bg-white bg-opacity-5 hover:bg-opacity-10 text-white text-xs font-bold rounded-2xl transition-all border border-white border-opacity-10">
+                    <i class="fas fa-print mr-2"></i> In vé của bạn
+                </button>
+            </div>
+        </div>
+    </main>
+
+    <footer th:replace="~{layout/footer :: footer}"></footer>
+</body>
+</html>

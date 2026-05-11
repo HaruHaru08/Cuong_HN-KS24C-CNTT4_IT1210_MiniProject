@@ -1,0 +1,454 @@
+﻿<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/main}">
+<head>
+    <title>Lịch Sử Đặt Vé | Smart Cinema</title>
+    <link href="https://cdn.jsdelivr.net/npm/daisyui@4.12.14/dist/full.min.css" rel="stylesheet">
+
+    <style>
+        :root {
+            --cr: #E50914;
+            --cr-dark: #B20710;
+        }
+
+        .ticket-stub {
+            display: flex;
+            border-radius: 18px;
+            overflow: hidden;
+            background: rgba(24,24,27,0.95);
+            border: 1px solid rgba(255,255,255,0.05);
+            transition: all 0.4s cubic-bezier(0.4,0,0.2,1);
+            position: relative;
+            min-height: 175px;
+        }
+        .ticket-stub:hover {
+            border-color: rgba(229,9,20,0.2);
+            box-shadow: 0 8px 40px rgba(229,9,20,0.06);
+            transform: translateY(-3px);
+        }
+
+        .ticket-left {
+            flex: 1;
+            padding: 22px 24px;
+            display: flex;
+            gap: 18px;
+            min-width: 0;
+            position: relative;
+            z-index: 1;
+        }
+        .ticket-left::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background-size: cover;
+            background-position: center;
+            opacity: 0.06;
+            z-index: -1;
+            transition: opacity 0.4s;
+        }
+        .ticket-stub:hover .ticket-left::before {
+            opacity: 0.1;
+        }
+
+        .ticket-right {
+            width: 195px;
+            flex-shrink: 0;
+            padding: 22px 24px 22px 32px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            position: relative;
+        }
+        .ticket-right::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 20px;
+            background:
+                radial-gradient(circle at 0 12px, rgba(9,9,11,1) 10px, transparent 11px) repeat-y;
+            background-size: 20px 24px;
+        }
+
+        .perf-line {
+            width: 2px;
+            flex-shrink: 0;
+            background: repeating-linear-gradient(
+                to bottom,
+                rgba(255,255,255,0.06) 0px,
+                rgba(255,255,255,0.06) 5px,
+                transparent 5px,
+                transparent 10px
+            );
+        }
+
+        .stub-poster {
+            width: 78px;
+            height: 110px;
+            border-radius: 10px;
+            object-fit: cover;
+            flex-shrink: 0;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+        }
+        .stub-poster-placeholder {
+            width: 78px;
+            height: 110px;
+            border-radius: 10px;
+            background: linear-gradient(135deg,#27272a,#3f3f46);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .badge-stub {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 4px 14px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.3px;
+            text-transform: uppercase;
+        }
+        .badge-paid { background: rgba(22,163,74,0.12); border: 1px solid rgba(22,163,74,0.2); color: #86efac; }
+        .badge-cancelled { background: rgba(229,9,20,0.1); border: 1px solid rgba(229,9,20,0.15); color: #fca5a5; }
+        .badge-pending { background: rgba(234,179,8,0.1); border: 1px solid rgba(234,179,8,0.15); color: #fde68a; }
+
+        .seat-chip {
+            display: inline-block;
+            padding: 2px 10px;
+            margin: 1px 2px;
+            background: rgba(229,9,20,0.1);
+            border: 1px solid rgba(229,9,20,0.12);
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 600;
+            color: #fca5a5;
+        }
+        .seat-chip:hover {
+            background: rgba(229,9,20,0.2);
+        }
+
+        .btn-stub {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            padding: 8px 20px;
+            border-radius: 10px;
+            font-size: 12px;
+            font-weight: 700;
+            color: #fff;
+            background: linear-gradient(135deg, var(--cr), var(--cr-dark));
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border: none;
+            text-decoration: none;
+            width: 100%;
+        }
+        .btn-stub:hover {
+            box-shadow: 0 0 24px rgba(229,9,20,0.3);
+            transform: translateY(-1px);
+            color: #fff;
+        }
+
+        .btn-cancel {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+            padding: 6px 14px;
+            border-radius: 8px;
+            font-size: 11px;
+            font-weight: 600;
+            background: rgba(229,9,20,0.08);
+            border: 1px solid rgba(229,9,20,0.12);
+            color: #fca5a5;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none;
+        }
+        .btn-cancel:hover {
+            background: rgba(229,9,20,0.2);
+            color: #fff;
+        }
+
+        @media (max-width: 639px) {
+            .ticket-stub { flex-direction: column; min-height: auto; }
+            .ticket-right {
+                width: 100%;
+                padding: 16px 20px 20px;
+                flex-direction: row;
+                flex-wrap: wrap;
+                border-top: 2px dashed rgba(255,255,255,0.06);
+            }
+            .ticket-right::before,
+            .perf-line { display: none; }
+            .ticket-left { flex-direction: column; align-items: center; text-align: center; }
+            .btn-stub { width: auto; min-width: 120px; }
+        }
+    </style>
+</head>
+<body>
+
+    <div layout:fragment="content">
+        <div class="min-h-screen py-8 md:py-12 px-4 md:px-0" style="background:var(--zinc-950);">
+            <div class="max-w-4xl mx-auto">
+
+                <!-- Header -->
+                <div class="flex items-center justify-between mb-8">
+                    <div>
+                        <h1 class="text-2xl md:text-3xl font-bold text-white font-['Poppins'] flex items-center gap-3 tracking-tight">
+                            <i class="fas fa-history" style="color:var(--cr);"></i>
+                            Lịch sử đặt vé
+                        </h1>
+                        <p class="text-sm text-white mt-1">Tất cả vé đã đặt của bạn</p>
+                    </div>
+                    <a th:href="@{/customer/home}"
+                       class="hidden sm:inline-flex items-center gap-2 px-4 py-2 text-sm text-white hover:text-white transition-colors rounded-xl hover:bg-white/5">
+                        <i class="fas fa-arrow-left"></i> Quay lại
+                    </a>
+                </div>
+
+                <!-- Empty -->
+                <div th:if="${#lists.isEmpty(bookings)}"
+                     class="text-center py-20">
+                    <div class="w-20 h-20 mx-auto mb-5 rounded-full bg-white/[0.03] flex items-center justify-center">
+                        <i class="fas fa-ticket-alt text-3xl text-white"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-white mb-2">Chưa có đặt vé nào</h3>
+                    <p class="text-white text-sm mb-8">Khám phá các bộ phim đang chiếu và đặt vé ngay!</p>
+                    <a th:href="@{/customer/home}"
+                       class="inline-flex items-center gap-2 px-6 py-3 rounded-xl text-white font-bold"
+                       style="background:linear-gradient(135deg,var(--cr),var(--cr-dark));">
+                        <i class="fas fa-film"></i> Xem phim đang chiếu
+                    </a>
+                </div>
+
+                <!-- Ticket List -->
+                <div th:if="${!#lists.isEmpty(bookings)}" class="space-y-5">
+                    <div th:each="b : ${bookings}" class="ticket-stub">
+
+                        <!-- LEFT: Poster + Info -->
+                        <div class="ticket-left"
+                             th:style="${b.moviePosterUrl != null and !#strings.isEmpty(b.moviePosterUrl)} ? 'background-image:url(' + @{${b.moviePosterUrl}} + ')' : ''"
+                             style="background-size:cover;background-position:center;background-repeat:no-repeat;">
+                            <img th:if="${b.moviePosterUrl != null and !#strings.isEmpty(b.moviePosterUrl)}"
+                                 th:src="@{${b.moviePosterUrl}}"
+                                 alt="poster" class="stub-poster"
+                                 onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+                            <div th:if="${b.moviePosterUrl == null or #strings.isEmpty(b.moviePosterUrl)}"
+                                 class="stub-poster-placeholder" style="display:none;">
+                                <i class="fas fa-film text-2xl text-white"></i>
+                            </div>
+                            <div class="min-w-0 flex-1">
+                                <h3 class="text-lg font-bold text-white font-['Poppins'] truncate" th:text="${b.movieTitle}">Movie</h3>
+                                <div class="flex flex-wrap items-center gap-x-4 gap-y-1.5 mt-2 text-sm text-white">
+                                    <span>
+                                        <i class="far fa-calendar-alt mr-1.5" style="color:var(--cr);font-size:11px;"></i>
+                                        <span th:text="${#temporals.format(b.showStartTime, 'dd/MM/yyyy')}">01/01</span>
+                                    </span>
+                                    <span>
+                                        <i class="far fa-clock mr-1.5" style="color:var(--cr);font-size:11px;"></i>
+                                        <span th:text="${#temporals.format(b.showStartTime, 'HH:mm')}">00:00</span>
+                                    </span>
+                                    <span>
+                                        <i class="fas fa-door-open mr-1.5" style="color:var(--cr);font-size:11px;"></i>
+                                        <span th:text="${b.roomName}">Phòng 1</span>
+                                    </span>
+                                </div>
+                                <div class="mt-3">
+                                    <span class="text-xs text-white block mb-1.5">Ghế:</span>
+                                    <div>
+                                        <span class="seat-chip" th:each="seat : ${#strings.listSplit(b.listSeats, ', ')}" th:text="${seat}"></span>
+                                    </div>
+                                </div>
+                                <div class="mt-2.5 text-xs text-white">
+                                    <i class="far fa-calendar-check mr-1"></i>
+                                    Đặt lúc: <span th:text="${#temporals.format(b.bookingDate, 'HH:mm, dd/MM/yyyy')}"></span>
+                                    <span class="mx-1.5">·</span>
+                                    Mã: #<span th:text="${b.bookingId}" class="text-white font-mono"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Perforated Line -->
+                        <div class="perf-line"></div>
+
+                        <!-- RIGHT: Price + Status + Actions -->
+                        <div class="ticket-right">
+                            <div class="text-xl md:text-2xl font-bold font-['Poppins'] text-white"
+                                 th:text="${#numbers.formatDecimal(b.totalPrice, 0, 'COMMA', 0, 'POINT')} + '₫'">
+                                0₫
+                            </div>
+
+                            <span th:if="${b.status == 'PAID'}" class="badge-stub badge-paid">
+                                <i class="fas fa-check-circle"></i> Đã thanh toán
+                            </span>
+                            <span th:if="${b.status == 'CANCELLED'}" class="badge-stub badge-cancelled">
+                                <i class="fas fa-times-circle"></i> Đã hủy
+                            </span>
+                            <span th:if="${b.status == 'PENDING'}" class="badge-stub badge-pending">
+                                <i class="fas fa-clock"></i> Chờ thanh toán
+                            </span>
+
+                            <a th:href="@{'/booking/ticket/' + ${b.bookingId}}" class="btn-stub">
+                                <i class="fas fa-receipt"></i> Chi tiết
+                            </a>
+
+                            <!-- Cancel button: chỉ hiện nếu PAID -->
+                            <button th:if="${b.status == 'PAID'}"
+                                    class="btn-cancel"
+                                    onclick="openCancelModal([[${b.bookingId}]], '[[${b.movieTitle}]]', '[[${#temporals.format(b.showStartTime, 'HH:mm, dd/MM/yyyy')}]]')">
+                                <i class="fas fa-ban"></i> Hủy vé
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Footer note -->
+                <p class="text-center text-xs text-white mt-8 leading-relaxed">
+                    <i class="fas fa-info-circle mr-1"></i>
+                    Có thể hủy vé trước 24 giờ so với giờ chiếu.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══ DAISYUI CANCEL MODAL ═══ -->
+    <dialog id="cancelModal" class="modal">
+        <div class="modal-box bg-zinc-900 border border-white/10 rounded-2xl max-w-md p-0 overflow-hidden">
+            <div class="p-6 pb-4 border-b border-white/5">
+                <div class="flex items-center justify-between">
+                    <h3 class="text-lg font-bold text-white flex items-center gap-3">
+                        <i class="fas fa-exclamation-triangle text-red-500"></i>
+                        Xác nhận hủy vé
+                    </h3>
+                    <form method="dialog">
+                        <button class="w-8 h-8 rounded-lg bg-white/5 hover:bg-white/10 text-white hover:text-white transition-colors flex items-center justify-center">
+                            <i class="fas fa-times text-sm"></i>
+                        </button>
+                    </form>
+                </div>
+            </div>
+            <div class="p-6 space-y-4">
+                <div class="p-4 rounded-xl bg-red-500/5 border border-red-500/10">
+                    <p class="text-sm text-white leading-relaxed">
+                        Bạn có chắc chắn muốn hủy vé <strong id="modalMovieName" class="text-white">phim</strong>?
+                    </p>
+                    <p class="text-xs text-white mt-2">
+                        <i class="far fa-clock mr-1"></i> Suất chiếu: <span id="modalShowtime" class="text-white"></span>
+                    </p>
+                </div>
+                <p class="text-xs text-white">
+                    <i class="fas fa-info-circle mr-1"></i>
+                    Tiền sẽ được hoàn trả theo quy định. Thao tác này không thể hoàn tác.
+                </p>
+                <div class="flex gap-3">
+                    <form method="dialog" class="flex-1">
+                        <button class="w-full px-4 py-2.5 text-sm font-semibold rounded-xl bg-white/5 text-white hover:bg-white/10 transition-all">
+                            Giữ vé
+                        </button>
+                    </form>
+                    <button id="confirmCancelBtn"
+                            class="flex-1 px-4 py-2.5 text-sm font-bold rounded-xl text-white transition-all"
+                            style="background:linear-gradient(135deg,#E50914,#B20710);"
+                            onclick="confirmCancel()">
+                        <i class="fas fa-ban mr-1.5"></i> Hủy vé
+                    </button>
+                </div>
+                <div id="cancelError" class="hidden text-xs text-red-400 text-center"></div>
+            </div>
+        </div>
+        <form method="dialog" class="modal-backdrop">
+            <button>close</button>
+        </form>
+    </dialog>
+
+    <script>
+        var pendingCancelId = null;
+
+        function openCancelModal(bookingId, movieTitle, showtimeStr) {
+            pendingCancelId = bookingId;
+            document.getElementById('modalMovieName').textContent = movieTitle;
+            document.getElementById('modalShowtime').textContent = showtimeStr;
+            document.getElementById('cancelError').classList.add('hidden');
+            document.getElementById('cancelModal').showModal();
+        }
+
+        function confirmCancel() {
+            if (!pendingCancelId) return;
+
+            var btn = document.getElementById('confirmCancelBtn');
+            var orig = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Đang xử lý...';
+
+            fetch('/booking/api/cancel/' + pendingCancelId, {
+                method: 'POST'
+            })
+            .then(function (r) { return r.json(); })
+            .then(function (data) {
+                if (data.success) {
+                    document.getElementById('cancelModal').close();
+                    showToast(data.message, 'success');
+                    setTimeout(function () { location.reload(); }, 1200);
+                } else {
+                    var err = document.getElementById('cancelError');
+                    err.textContent = data.message;
+                    err.classList.remove('hidden');
+                }
+            })
+            .catch(function (err) {
+                var err = document.getElementById('cancelError');
+                err.textContent = 'Lỗi hệ thống: ' + err.message;
+                err.classList.remove('hidden');
+            })
+            .finally(function () {
+                btn.disabled = false;
+                btn.innerHTML = orig;
+            });
+        }
+
+        function showToast(message, type) {
+            type = type || 'info';
+            var container = document.getElementById('toastContainer');
+            if (!container) {
+                container = document.createElement('div');
+                container.id = 'toastContainer';
+                container.style.cssText = 'position:fixed;top:20px;right:20px;z-index:9999;display:flex;flex-direction:column;gap:10px;pointer-events:none;';
+                document.body.appendChild(container);
+            }
+            var toast = document.createElement('div');
+            toast.className = 'animate__animated animate__slideInRight';
+            toast.style.cssText = 'pointer-events:auto;padding:12px 20px;border-radius:12px;display:flex;align-items:center;gap:10px;font-size:13px;font-weight:500;backdrop-filter:blur(16px);box-shadow:0 8px 40px rgba(0,0,0,0.4);min-width:300px;max-width:420px;';
+
+            var colors = {
+                success: 'background:rgba(22,163,74,0.12);border:1px solid rgba(22,163,74,0.25);color:#86efac;',
+                error: 'background:rgba(229,9,20,0.12);border:1px solid rgba(229,9,20,0.25);color:#fca5a5;',
+                warning: 'background:rgba(245,158,11,0.12);border:1px solid rgba(245,158,11,0.25);color:#fde68a;',
+                info: 'background:rgba(59,130,246,0.12);border:1px solid rgba(59,130,246,0.25);color:#93c5fd;'
+            };
+            var icons = { success: 'fa-check-circle', error: 'fa-exclamation-circle', warning: 'fa-exclamation-triangle', info: 'fa-info-circle' };
+
+            toast.style.cssText += colors[type] || colors.info;
+            toast.innerHTML = '<i class="fas ' + (icons[type] || icons.info) + '"></i>' + message;
+            container.appendChild(toast);
+
+            setTimeout(function () {
+                toast.classList.remove('animate__slideInRight');
+                toast.classList.add('animate__slideOutRight');
+                setTimeout(function () { toast.remove(); }, 500);
+            }, 4000);
+        }
+    </script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+
+</body>
+</html>

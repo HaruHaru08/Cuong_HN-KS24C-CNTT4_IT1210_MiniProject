@@ -1,0 +1,31 @@
+﻿<footer class="footer-cinema h-14 flex items-center justify-between px-8 text-[11px] uppercase tracking-[2px] font-light text-white mt-auto" th:fragment="footer" xmlns:th="http://www.thymeleaf.org">
+    <div>
+        Copyright &copy; 2026 <span class="text-white font-medium">Smart Cinema System</span>.
+    </div>
+    <div class="flex items-center gap-2">
+        <span>Software Version</span>
+        <span class="text-cinema-red font-bold">1.0.4-PRO</span>
+    </div>
+
+    <!-- Sidebar Toggle Script (Essential for Layout) -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const toggleBtn = document.getElementById('sidebarToggle');
+            const body = document.body;
+
+            if (toggleBtn) {
+                toggleBtn.addEventListener('click', function() {
+                    body.classList.toggle('sidebar-collapsed');
+
+                    // Change icon based on state
+                    const icon = toggleBtn.querySelector('i');
+                    if (body.classList.contains('sidebar-collapsed')) {
+                        icon.className = 'fas fa-outdent';
+                    } else {
+                        icon.className = 'fas fa-indent';
+                    }
+                });
+            }
+        });
+    </script>
+</footer>

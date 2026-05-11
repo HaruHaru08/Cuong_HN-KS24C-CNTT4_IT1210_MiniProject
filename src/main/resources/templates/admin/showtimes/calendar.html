@@ -1,0 +1,219 @@
+﻿<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/main}">
+<head>
+    <title>Lịch Chiếu - Quản Lý Suất Chiếu</title>
+</head>
+<body>
+    <div layout:fragment="content">
+        <!-- Header Section -->
+        <div class="mb-8">
+            <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-6">
+                <div>
+                    <h1 class="text-4xl font-bold text-white mb-2">
+                        <i class="fas fa-calendar-alt text-red-600 mr-3"></i>Lịch Biểu Chiếu
+                    </h1>
+                    <p class="text-white">Xem tổng quát lịch chiếu theo tháng - Tất cả phòng</p>
+                </div>
+                <div class="flex gap-3 mt-4 md:mt-0">
+                    <a href="/admin/showtimes" class="px-4 py-2 bg-gray-800 hover:bg-gray-700 rounded-lg transition text-white flex items-center gap-2">
+                        <i class="fas fa-list"></i>Timeline View
+                    </a>
+                    <button onclick="location.reload()" class="px-4 py-2 bg-gray-800 hover:bg-gray-700 rounded-lg transition text-white flex items-center gap-2">
+                        <i class="fas fa-sync"></i>Làm mới
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Month Navigation -->
+        <div class="glass-card p-6 mb-8">
+            <div class="flex items-center justify-between mb-6">
+                <h2 class="text-2xl font-bold text-white">
+                    <i class="fas fa-calendar text-red-600 mr-2"></i>
+                    Tháng <span th:text="${selectedMonth.month.value}"></span> / Năm <span th:text="${selectedMonth.year}"></span>
+                </h2>
+
+                <form method="get" class="flex gap-2">
+                    <!-- Previous Month -->
+                    <button type="submit" name="month" th:value="${selectedMonth.minusMonths(1)}" 
+                            class="px-4 py-2 bg-gray-800 hover:bg-gray-700 text-white rounded-lg transition">
+                        <i class="fas fa-chevron-left"></i> Tháng Trước
+                    </button>
+
+                    <!-- Today Button -->
+                    <button type="submit" name="month" th:value="${T(java.time.YearMonth).now()}" 
+                            class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition font-semibold">
+                        <i class="fas fa-today"></i> Hôm Nay
+                    </button>
+
+                    <!-- Next Month -->
+                    <button type="submit" name="month" th:value="${selectedMonth.plusMonths(1)}" 
+                            class="px-4 py-2 bg-gray-800 hover:bg-gray-700 text-white rounded-lg transition">
+                        Tháng Sau <i class="fas fa-chevron-right"></i>
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Calendar Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <!-- Rooms Loop -->
+            <div th:each="room, roomStat : ${showtimesByRoom.keySet()}" class="room-column">
+                <!-- Room Header -->
+                <div class="bg-gradient-to-r from-red-600 to-red-700 p-4 border-b border-red-600">
+                    <h3 class="text-lg font-bold text-white flex items-center gap-2">
+                        <i class="fas fa-door-open"></i>
+                        <span th:text="${room.name}"></span>
+                        <span class="text-xs bg-red-500 px-2 py-1 rounded font-semibold" th:text="${room.totalSeats} + ' ghế'"></span>
+                    </h3>
+                </div>
+
+                <!-- Showtimes List -->
+                <div class="p-4 space-y-2 max-h-96 overflow-y-auto">
+                    <div th:set="roomShowtimes = ${showtimesByRoom.get(room)}" th:if="${roomShowtimes.isEmpty()}" 
+                         class="py-8 text-center text-white">
+                        <i class="fas fa-inbox text-2xl mb-2 block"></i>
+                        <p class="text-sm">Không có suất chiếu</p>
+                    </div>
+
+                    <div th:each="showtime : ${showtimesByRoom.get(room)}" 
+                         class="timeline-slot timeline-occupied hover:border-yellow-400 transition group">
+                        <div class="flex flex-col gap-2">
+                            <!-- Movie Title -->
+                            <div class="font-semibold text-white text-sm truncate group-hover:text-red-300 transition">
+                                <i class="fas fa-film text-red-600 mr-1"></i>
+                                <span th:text="${showtime.movie.title}"></span>
+                            </div>
+
+                            <!-- Time -->
+                            <div class="flex items-center gap-2 text-xs text-white">
+                                <i class="fas fa-clock text-yellow-400"></i>
+                                <span th:text="${#temporals.format(showtime.startTime, 'HH:mm')} + ' - ' + ${#temporals.format(showtime.endTime, 'HH:mm')}"></span>
+                            </div>
+
+                            <!-- Duration -->
+                            <div class="text-xs text-white">
+                                <i class="fas fa-hourglass-end mr-1 text-blue-400"></i>
+                                <span th:text="${showtime.movie.duration} + ' phút'"></span>
+                            </div>
+
+                            <!-- Date -->
+                            <div class="text-xs text-white border-t border-gray-700 pt-2">
+                                <i class="fas fa-calendar-day mr-1 text-white"></i>
+                                <span th:text="${#temporals.format(showtime.startTime, 'dd/MM/yyyy')}"></span>
+                            </div>
+
+                            <!-- Price -->
+                            <div th:if="${showtime.price}" class="text-xs text-green-400 font-semibold">
+                                <i class="fas fa-tag mr-1"></i>
+                                <span th:text="${#numbers.formatDecimal(showtime.price, 0, 'COMMA', 0, 'POINT')} + ' VNĐ'"></span>
+                            </div>
+
+                            <!-- Actions (Hidden, show on hover) -->
+                            <div class="flex gap-2 pt-2 border-t border-gray-700 opacity-0 group-hover:opacity-100 transition mt-2">
+                                <button onclick="viewShowtime([[${showtime.id}]])" 
+                                        class="flex-1 px-2 py-1 bg-blue-600 hover:bg-blue-700 rounded text-xs text-white transition font-semibold">
+                                    <i class="fas fa-eye mr-1"></i>Xem
+                                </button>
+                                <button onclick="deleteShowtimeCalendar([[${showtime.id}]])" 
+                                        class="flex-1 px-2 py-1 bg-red-600 hover:bg-red-700 rounded text-xs text-white transition font-semibold">
+                                    <i class="fas fa-trash mr-1"></i>Xóa
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Empty State -->
+            <div th:if="${showtimesByRoom.isEmpty()}" class="col-span-full py-12 text-center">
+                <i class="fas fa-inbox text-6xl text-white mb-4 block"></i>
+                <p class="text-white text-lg">Không có suất chiếu nào trong tháng này</p>
+                <a href="/admin/showtimes" class="mt-4 inline-block px-6 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg font-semibold transition">
+                    <i class="fas fa-plus mr-2"></i>Thêm Suất Chiếu
+                </a>
+            </div>
+        </div>
+
+        <!-- Statistics -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mt-8">
+            <div class="glass-card p-6 text-center">
+                <div class="text-3xl font-bold text-red-600 mb-2">
+                    <span th:text="${showtimesByRoom.values().stream().flatMap(T(java.util.Collection).stream).count()}"></span>
+                </div>
+                <p class="text-white">Tổng Suất Chiếu</p>
+            </div>
+
+            <div class="glass-card p-6 text-center">
+                <div class="text-3xl font-bold text-blue-400 mb-2">
+                    <span th:text="${rooms.size()}"></span>
+                </div>
+                <p class="text-white">Phòng Chiếu</p>
+            </div>
+
+            <div class="glass-card p-6 text-center">
+                <div class="text-3xl font-bold text-green-400 mb-2">
+                    <span th:text="${#temporals.format(selectedMonth.atDay(1), 'MMMM', #locale.valueOf('vi_VN'))}"></span>
+                </div>
+                <p class="text-white">Tháng</p>
+            </div>
+
+            <div class="glass-card p-6 text-center">
+                <div class="text-3xl font-bold text-yellow-400 mb-2">
+                    <span th:text="${selectedMonth.year}"></span>
+                </div>
+                <p class="text-white">Năm</p>
+            </div>
+        </div>
+
+        <!-- Legend -->
+        <div class="glass-card p-6 mt-8">
+            <h3 class="text-lg font-bold text-white mb-4 flex items-center gap-2">
+                <i class="fas fa-info-circle text-red-600"></i>Hướng Dẫn
+            </h3>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div class="flex items-center gap-3">
+                    <div class="w-12 h-12 timeline-occupied rounded-lg"></div>
+                    <div>
+                        <p class="font-semibold text-white">Suất Chiếu Đang Hoạt Động</p>
+                        <p class="text-xs text-white">Phòng này đang có chiếu phim</p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-3">
+                    <div class="w-12 h-12 timeline-free rounded-lg"></div>
+                    <div>
+                        <p class="font-semibold text-white">Phòng Trống</p>
+                        <p class="text-xs text-white">Có thể thêm suất chiếu mới</p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-3">
+                    <i class="fas fa-calendar-alt text-4xl text-red-600"></i>
+                    <div>
+                        <p class="font-semibold text-white">Chỉ Đạo Tháng</p>
+                        <p class="text-xs text-white">Sử dụng nút điều hướng để thay đổi tháng</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script th:inline="javascript">
+        function viewShowtime(id) {
+            alert('Chi tiết suất chiếu #' + id + ' sẽ được hiển thị sớm');
+        }
+
+        function deleteShowtimeCalendar(id) {
+            if (confirm('Bạn có chắc muốn xóa suất chiếu này?')) {
+                const form = document.createElement('form');
+                form.method = 'POST';
+                form.action = '/admin/showtimes/' + id + '/delete';
+                document.body.appendChild(form);
+                form.submit();
+            }
+        }
+    </script>
+</body>
+</html>

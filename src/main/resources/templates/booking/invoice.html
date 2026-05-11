@@ -1,0 +1,201 @@
+﻿<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/main}">
+<head>
+    <title>Xác nhận hóa đơn - Smart Cinema</title>
+    <style>
+        :root {
+            --cr: #E50914;
+            --cr-dark: #B20710;
+            --cr-glow: rgba(229,9,20,0.35);
+            --gold: #F59E0B;
+            --purple: #A855F7;
+        }
+        body { background: #09090b !important; }
+        #invoice-page, #invoice-page * { color: #fff !important; }
+        #invoice-page #total-amount { color: #E50914 !important; }
+        #invoice-page .inv-btn { color: #fff !important; }
+
+        .inv-card {
+            background: rgba(255,255,255,0.03);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 20px;
+            padding: 32px;
+        }
+
+        .inv-divider {
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.08), transparent);
+        }
+
+        .inv-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 12px;
+            border-radius: 999px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .inv-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            padding: 14px 32px;
+            font-family: 'Poppins', sans-serif;
+            font-size: 15px;
+            font-weight: 700;
+            color: #fff;
+            border: none;
+            border-radius: 12px;
+            background: linear-gradient(135deg, var(--cr), var(--cr-dark));
+            cursor: pointer;
+            transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+            position: relative;
+            overflow: hidden;
+            text-decoration: none;
+        }
+        .inv-btn::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(90deg, transparent 30%, rgba(255,255,255,0.1) 50%, transparent 70%);
+            transform: translateX(-100%);
+            transition: transform 0.6s;
+        }
+        .inv-btn:hover::before { transform: translateX(100%); }
+        .inv-btn:hover {
+            box-shadow: 0 0 40px var(--cr-glow), 0 8px 32px rgba(0,0,0,0.3);
+            transform: translateY(-2px) scale(1.02);
+            color: #fff;
+        }
+        .inv-btn--outline {
+            background: transparent;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        .inv-btn--outline:hover {
+            background: rgba(255,255,255,0.04);
+            box-shadow: none;
+            transform: translateY(-1px);
+        }
+    </style>
+</head>
+<body>
+    <div layout:fragment="content">
+        <div class="min-h-screen py-10 px-4">
+            <div id="invoice-page" class="max-w-3xl mx-auto">
+
+                <!-- Header -->
+                <div class="flex items-center justify-between mb-6">
+                    <div>
+                        <h1 class="text-2xl font-bold text-white font-['Poppins'] flex items-center gap-3">
+                            <i class="fas fa-file-invoice text-[#E50914]"></i>
+                            Xác nhận hóa đơn
+                        </h1>
+                        <p class="text-sm text-white mt-1">Vui lòng kiểm tra thông tin trước khi thanh toán</p>
+                    </div>
+                    <span class="inv-badge bg-amber-500/10 text-white border border-amber-500/20">
+                        <i class="fas fa-clock"></i> Chờ thanh toán
+                    </span>
+                </div>
+
+                <!-- Invoice Card -->
+                <div class="inv-card">
+
+                    <!-- Movie Info -->
+                    <div class="flex items-center gap-4 pb-6">
+                        <div class="w-16 h-22 rounded-xl overflow-hidden flex-shrink-0 bg-zinc-900">
+                            <img th:if="${showtime.movie.posterUrl != null}"
+                                 th:src="${showtime.movie.posterUrl}" th:alt="${showtime.movie.title}"
+                                 class="w-full h-full object-cover">
+                            <div th:unless="${showtime.movie.posterUrl != null}"
+                                 class="w-full h-full flex items-center justify-center text-white">
+                                <i class="fas fa-film text-lg"></i>
+                            </div>
+                        </div>
+                        <div>
+                            <h2 class="text-lg font-bold text-white font-['Poppins']" th:text="${showtime.movie.title}">Tên phim</h2>
+                            <div class="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-white mt-1.5">
+                                <span><i class="far fa-clock mr-1 text-[#E50914]"></i><span th:text="${#temporals.format(showtime.startTime, 'HH:mm, dd/MM/yyyy')}">00:00, 01/01</span></span>
+                                <span><i class="fas fa-door-open mr-1 text-[#E50914]"></i><span th:text="${showtime.room.name}">Phòng 1</span></span>
+                                <span><i class="fas fa-clock mr-1 text-[#E50914]"></i><span th:text="${showtime.movie.duration}">120</span> phút</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="inv-divider mb-6"></div>
+
+                    <!-- Seats Detail -->
+                    <h3 class="text-sm font-semibold text-white uppercase tracking-wider mb-4">
+                        <i class="fas fa-couch mr-2 text-[#E50914]"></i>Ghế đã chọn
+                        <span class="ml-2 text-xs text-white" th:text="'(' + ${seatCount} + ' ghế)'">(0 ghế)</span>
+                    </h3>
+
+                    <div class="space-y-3 mb-6">
+                        <div th:each="seat : ${seatDetails}"
+                             class="flex items-center justify-between p-3 rounded-xl bg-white/[0.02] border border-white/[0.04]">
+                            <div class="flex items-center gap-3">
+                                <span class="w-[14px] h-[14px] rounded-[4px_4px_2px_2px] flex-shrink-0"
+                                      th:classappend="${seat.typeName == 'vip'} ? 'bg-amber-500' : (${seat.typeName == 'sweetbox'} ? 'bg-purple-500' : 'bg-zinc-500')"></span>
+                                <div>
+                                    <span class="text-white font-semibold text-sm" th:text="${seat.seatNumber}">A1</span>
+                                    <span class="text-white text-xs ml-2" th:text="'(' + ${seat.typeName} + ')'">(normal)</span>
+                                </div>
+                            </div>
+                            <div class="text-right">
+                                <span class="text-white font-medium text-sm" th:text="${#numbers.formatDecimal(seat.price, 0, 'COMMA', 0, 'POINT')} + '₫'">100,000₫</span>
+                                <br>
+                                <span class="text-white text-[10px]" th:text="'Phụ phí: +' + ${#numbers.formatDecimal(seat.surcharge, 0, 'COMMA', 0, 'POINT')} + '₫'">+10,000₫</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="inv-divider mb-5"></div>
+
+                    <!-- Total -->
+                    <div class="flex items-center justify-between mb-6">
+                        <div>
+                            <p class="text-white font-bold font-['Poppins'] text-lg">Tổng tiền</p>
+                            <p class="text-white text-xs">Đã bao gồm phụ phí loại ghế</p>
+                        </div>
+                        <span id="total-amount" class="text-2xl font-bold font-['Poppins'] text-[#E50914]"
+                              th:text="${#numbers.formatDecimal(totalAmount, 0, 'COMMA', 0, 'POINT')} + '₫'">0₫</span>
+                    </div>
+
+                    <div class="inv-divider mb-6"></div>
+
+                    <!-- Action Form -->
+                    <form th:action="@{/booking/pay}" method="post" class="space-y-3">
+                        <input type="hidden" name="showtimeId" th:value="${showtimeId}" />
+                        <input th:each="seatId : ${selectedSeatIds}" type="hidden" name="selectedSeatIds" th:value="${seatId}" />
+
+                        <div class="flex flex-col sm:flex-row items-center gap-3">
+                            <button type="submit" class="inv-btn flex-1">
+                                <i class="fas fa-check-circle"></i>
+                                Xác nhận thanh toán
+                            </button>
+                            <a th:href="@{/booking/showtime/{id}(id=${showtimeId})}"
+                               class="inv-btn inv-btn--outline flex-1 text-center">
+                                <i class="fas fa-arrow-left"></i>
+                                Chọn lại ghế
+                            </a>
+                        </div>
+                    </form>
+
+                    <p class="text-xs text-white mt-4 text-center leading-relaxed">
+                        <i class="fas fa-info-circle mr-1"></i>
+                        Sau khi xác nhận, vé sẽ được gửi đến email của bạn
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

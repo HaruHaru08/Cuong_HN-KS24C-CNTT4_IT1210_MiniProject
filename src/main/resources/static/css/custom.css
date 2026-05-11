@@ -1,0 +1,111 @@
+/* custom.css - Cinema Admin Layout (Tailwind based) */
+
+:root {
+    --cinema-red: #E50914;
+    --sidebar-width: 260px;
+    --sidebar-collapsed-width: 80px;
+    --dark-sidebar: #1a1a1a;
+    --dark-navbar: #121212;
+    --transition-speed: 0.3s;
+}
+
+/* --- Layout Structure --- */
+#sidebar {
+    width: var(--sidebar-width);
+    transition: width var(--transition-speed) ease;
+    z-index: 1040;
+}
+
+#main-content-container {
+    margin-left: var(--sidebar-width);
+    transition: margin-left var(--transition-speed) ease;
+    min-height: 100vh;
+}
+
+/* --- Sidebar Collapsed Logic --- */
+body.sidebar-collapsed #sidebar {
+    width: var(--sidebar-collapsed-width);
+}
+
+body.sidebar-collapsed #main-content-container {
+    margin-left: var(--sidebar-collapsed-width);
+}
+
+body.sidebar-collapsed #sidebar .nav-text {
+    display: none;
+}
+
+body.sidebar-collapsed #sidebar .brand-text {
+    display: none;
+}
+
+body.sidebar-collapsed #sidebar .nav-item {
+    justify-content: center;
+}
+
+/* --- Aesthetic Improvements --- */
+.text-cinema-red { color: var(--cinema-red); }
+.bg-cinema-red { background-color: var(--cinema-red); }
+.border-cinema-red { border-color: var(--cinema-red); }
+
+.glassmorphism {
+    background: rgba(26, 26, 26, 0.7);
+    backdrop-filter: blur(10px);
+    border-right: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.nav-link-cinema {
+    @apply flex items-center px-4 py-3 text-gray-400 hover:text-white hover:bg-white hover:bg-opacity-5 transition-all duration-300;
+}
+
+.nav-link-cinema.active {
+    @apply text-white;
+    background: linear-gradient(90deg, rgba(229, 9, 20, 0.2), transparent);
+    border-left: 4px solid var(--cinema-red);
+}
+
+.nav-link-cinema i {
+    @apply w-6 text-center text-lg;
+    filter: drop-shadow(0 0 5px rgba(229, 9, 20, 0));
+    transition: filter 0.3s ease;
+}
+
+.nav-link-cinema:hover i, .nav-link-cinema.active i {
+    filter: drop-shadow(0 0 8px var(--cinema-red));
+}
+
+.navbar-cinema {
+    background: var(--dark-navbar);
+    border-bottom: 2px solid var(--cinema-red);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+}
+
+.card-cinema {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 1rem;
+    backdrop-filter: blur(5px);
+}
+
+.footer-cinema {
+    background: #0f0f0f;
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+/* Equal Height Grid for Profile */
+.profile-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1.5rem;
+    align-items: stretch;
+}
+
+/* Animations */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fade-in {
+    animation: fadeIn 0.5s ease forwards;
+}
